@@ -46,6 +46,22 @@ Uygulama içinde `#testler` adresi aynı kabul testlerini tarayıcıda çalışt
 
 Görüntüleyici iki katmanlı: "Sayfayı gör" hızlı JPG görünümünü açar (telefonda sayfa başına ~100 KB); oradaki **PDF** düğmesi aynı sayfayı orijinal PDF'te PDF.js ile açar. PDF.js modülü yalnız bu düğmeye ilk basıldığında yüklenir; PDF'ler ilk açılışta çevrimdışı önbelleğe girer.
 
+## Kontrol modu (ikinci okuma)
+
+Uygulamada `#kontrol` (alt bilgide "Kontrol modu (editör)"): her Ek-1 değer satırı sayfa görüntüsünün yanında gösterilir; kontrol eden kişi adını yazar ve **Eşleşti** ya da **Düzelt** der (klavye: E, D, ←/→).
+
+1. Kararlar tarayıcıda saklanır; **Kayıtları indir** yalnız henüz depoya işlenmemiş kararları `kontrol_kayitlari_<tarih>.jsonl` olarak verir. Başka cihazdaki kayıtlar **Kayıt yükle** ile birleştirilebilir.
+2. Önce rapor, sonra yazma:
+   ```bash
+   npm run kontrol:uygula -- kontrol_kayitlari_2026-10-30.jsonl
+   npm run kontrol:uygula -- kontrol_kayitlari_2026-10-30.jsonl --yaz
+   ```
+   `--yaz`: `../yedekler/` altına yedek alır, kayıtları `data/ek1/kontrol_gecmisi.jsonl`'e **ekler** (silmez), tüm değerleri eşleşen madde gruplarını `okundu → eslesti` yapar ve CSV'deki doğrulama sütununu günceller.
+3. **Düzeltmeler hiçbir zaman otomatik işlenmez**; betik yalnız listeler. Değer değişikliği onayla, yedekle ve testle ayrıca yapılır. Kontrol modu `guncel` (hukuki güncellik) durumu veremez.
+4. `npm test`: kabul testlerindeki "iki kez eşleşen grup" sayısı yeni değere güncellenir; değişiklik testle birlikte commit edilir.
+
+Satır kimliği: madde + ürün ifadesi + analit + tarih (veri dosyasına yeni alan eklenmedi; tekilliği testle korunur).
+
 ## Veri kuralları (özet)
 
 - Değerler yalnız `data/ek1/` altındaki dosyalardan okunur; kodda değer kopyalanmaz.

@@ -143,8 +143,18 @@ export function baslat(dz: AramaDizini, DATA: Veri): void {
   }
   function gvGit(d: number, hashYaz?: boolean) { const l = KAYNAKLAR[gv.kaynak].sayfalar, i = l.indexOf(gv.sayfa) + d; if (i < 0 || i >= l.length) return; const z = gv.zoom; gvAc(gv.kaynak, l[i], hashYaz); gv.zoom = z; gvCiz(); }
 
+  /* Kontrol modu: modül yalnız #kontrol ilk açıldığında yüklenir. */
+  let kontrol: Promise<void> | null = null;
+  function kontrolGoster(ac: boolean) {
+    $('uygulama').hidden = ac; $('kontrolAlani').hidden = !ac;
+    if (ac && !kontrol) {
+      kontrol = import('./kontrol').then(m => m.kontrolBaslat($('kontrolAlani'), DATA), () => { kontrol = null; $('kontrolAlani').textContent = 'Kontrol modu yüklenemedi.'; });
+    }
+  }
   function yonlendir() {
     const h = location.hash.replace(/^#/, ''), m = /^(ek1|talimat)-(\d{1,2})$/.exec(h);
+    kontrolGoster(h === 'kontrol');
+    if (h === 'kontrol') { gvKapat(); window.scrollTo(0, 0); return; }
     if (m) { $('testAlani').hidden = true; $('ana').hidden = false; gvAc(m[1] === 'ek1' ? 'e1' : 'tl', parseInt(m[2], 10), false); return; }
     gvKapat();
     if (h === 'testler') { $('ana').hidden = true; $('testAlani').hidden = false; void testleriGoster(); } else { $('testAlani').hidden = true; $('ana').hidden = false; }

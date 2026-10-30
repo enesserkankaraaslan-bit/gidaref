@@ -12,7 +12,8 @@
     "test": "node node_modules/vitest/vitest.mjs run",
     "test:watch": "node node_modules/vitest/vitest.mjs",
     "test:e2e": "node node_modules/@playwright/test/cli.js test",
-    "typecheck": "node node_modules/typescript/bin/tsc --noEmit"
+    "typecheck": "node node_modules/typescript/bin/tsc --noEmit",
+    "kontrol:uygula": "node node_modules/vite-node/vite-node.mjs scripts/kontrol-uygula.ts --"
   },
   "dependencies": {
     "pdfjs-dist": "4.7.76"

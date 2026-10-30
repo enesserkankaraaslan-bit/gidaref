@@ -1,0 +1,62 @@
+/* Kontrol modu: telefonda alt alta, geniş ekranda sayfa görüntüsü ve satır yan yana. */
+.kontrol{max-width:1400px;margin:0 auto;padding:12px 16px 40px}
+.kontrol[hidden]{display:none}
+.k-ust{display:grid;gap:8px;margin-bottom:12px}
+.k-baslik{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.k-baslik .btn{margin:0;text-decoration:none;display:inline-flex;align-items:center}
+.k-baslik h1{margin:0;font-size:26px}
+.k-sayac{margin:0;font-size:15px;color:var(--soluk)}
+.k-araclar{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:end}
+.k-araclar label{display:grid;gap:2px;font-size:13px;color:var(--soluk)}
+.k-araclar input,.k-araclar select,.k-duzelt input,.k-duzelt select,.k-duzelt textarea{font:inherit;color:var(--murekkep);background:var(--kagit);border:1.5px solid var(--cizgi);border-radius:10px;padding:8px 10px;min-height:44px}
+.k-araclar input{min-width:0;width:min(220px,100%)}
+.k-araclar .btn{margin:0}
+.k-yukle input{position:absolute;width:1px;height:1px;opacity:0}
+.k-yukle{position:relative;cursor:pointer;display:inline-flex;align-items:center}
+.k-yukle:focus-within{outline:3px solid var(--odak);outline-offset:2px}
+.k-mesaj{margin:0;font-size:14px;color:var(--yesil-yazi);min-height:1em}
+.k-govde{display:grid;gap:12px}
+.k-gorsel{background:var(--kagit);border:1px solid var(--cizgi);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.k-gorsel-ust{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 10px;border-bottom:1px solid var(--cizgi)}
+.k-zoom{display:flex;gap:6px}
+.k-zoom .btn{margin:0;min-width:44px;padding:4px 10px}
+.k-kaydir{overflow:auto;height:42vh;background:#d9dfdb;-webkit-overflow-scrolling:touch}
+:root[data-theme="dark"] .k-kaydir{background:#0A100E}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .k-kaydir{background:#0A100E}}
+.k-kaydir img{display:block;background:#fff;max-width:none;width:100%}
+.k-kart{background:var(--kagit);border:1px solid var(--cizgi);border-radius:14px;padding:14px}
+.k-kart h2{font-family:var(--serif);font-size:20px;margin:4px 0 8px}
+.k-kart h2 small{font-family:var(--sans);font-size:14px;font-weight:400;color:var(--soluk)}
+.k-kart-ust{display:flex;justify-content:space-between;gap:8px;font-size:14px;color:var(--soluk)}
+.k-durum{border-radius:6px;padding:1px 8px;font-weight:600;font-size:13px}
+.k-durum-bekliyor{background:var(--kehribar-zemin);color:var(--kehribar)}
+.k-durum-eslesti{background:var(--yesil-zemin);color:var(--yesil-yazi)}
+.k-durum-duzeltme{background:#F6D9D6;color:#8C1D18}
+:root[data-theme="dark"] .k-durum-duzeltme{background:#3B1A18;color:#F2B8B3}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .k-durum-duzeltme{background:#3B1A18;color:#F2B8B3}}
+.k-alanlar{display:grid;gap:6px;margin:0}
+.k-alanlar div{display:grid;grid-template-columns:96px 1fr;gap:8px}
+.k-alanlar dt{font-size:14px;color:var(--soluk)}
+.k-alanlar dd{margin:0;font-size:15px;overflow-wrap:anywhere}
+.k-uyari{margin:10px 0 0;font-size:14px;color:var(--kehribar);background:var(--kehribar-zemin);border-radius:8px;padding:6px 10px}
+.k-dugmeler{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.k-dugmeler .btn{margin:0;flex:1 1 auto}
+.k-dugmeler .btn[disabled]{opacity:.45;cursor:default}
+.k-birincil{background:var(--yesil);color:var(--kagit)}
+.k-birincil:hover{background:var(--yesil-yazi)}
+:root[data-theme="dark"] .k-birincil{color:#0F1714}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .k-birincil{color:#0F1714}}
+.k-duzelt{display:grid;gap:8px;margin-top:12px;padding-top:12px;border-top:1px dashed var(--cizgi)}
+.k-duzelt[hidden]{display:none}
+.k-duzelt label{display:grid;gap:2px;font-size:14px;color:var(--soluk)}
+.k-eski{margin:0;font-size:14px}
+.k-ipucu{margin:0;font-size:13px;color:var(--soluk)}
+.k-gecmis{margin-top:12px;font-size:14px}
+.k-gecmis summary{cursor:pointer;color:var(--yesil-yazi)}
+.k-gecmis ol{margin:6px 0 0;padding-left:20px;display:grid;gap:4px}
+.k-gecmis em{color:var(--kehribar);font-style:normal;font-size:13px}
+@media (min-width:900px){
+  .k-govde{grid-template-columns:minmax(0,1.5fr) minmax(320px,1fr);align-items:start}
+  .k-gorsel{position:sticky;top:8px}
+  .k-kaydir{height:calc(100vh - 220px)}
+}

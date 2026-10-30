@@ -27,7 +27,7 @@ Kapsam yol haritası: (1) Bulaşanlar Yönetmeliği Ek-1 — bu paketle hazır, 
 - Aşamalı limitler: bugünün tarihine göre geçerli değer + sıradaki değer(ler). Tarihsiz değer başlangıç değeridir.
 
 ## Bilinen açıklar
-- 482 satırın çoğu tek okuma; ikinci kontrol için bir "kontrol modu" (satır + sayfa görüntüsü yan yana, onayla/düzelt) gerekli. İlk 8 değer iki kez eşleşti.
+- 482 satırın çoğu tek okuma; ilk 8 değer iki kez eşleşti. Kontrol modu hazır (sprint 4: `#kontrol`, `npm run kontrol:uygula`, geçmiş `data/ek1/kontrol_gecmisi.jsonl`); ikinci okumayı bir insanın (tercihen gıda mühendisi) yapması gerekiyor. Düzeltme önerileri otomatik işlenmez.
 - Ürün sınıflandırması (`urun_siniflandirmasi_kaynak.py`) bir gıda mühendisi tarafından gözden geçirilmeli.
 - Koşullu istisnalar yalnız 1.1.12'de işaretli; benzerleri olabilir.
 - Bilinçli olarak bırakılan veri/arama tutarsızlıkları (içme sütü/yoğurt aramaları, kuru baz/kuru madde, dipnot 1, eksik talimat kayıtları): `docs/acik_tutarsizliklar.md`. Kullanıcı onayı olmadan düzeltilmez.
