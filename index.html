@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GıdaRef – gıda mühendisi için mevzuat başucu</title>
+<meta name="description" content="Bulaşanlar Yönetmeliği Ek-1’in tüm satırlarında ürün ve bulaşan araması.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,500;8..60,700&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#0F6B5C">
+<link rel="icon" href="/simge.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/simge-192.png">
+</head>
+<body>
+<div class="sayfa" id="uygulama">
+  <header class="ust">
+    <a class="marka" href="#" id="evBaglanti" aria-label="GıdaRef ana sayfa">
+      <span class="isaret" aria-hidden="true">G</span>
+      <span class="marka-ad">GıdaRef<span class="marka-alt">Gıda mühendisinin başucu rehberi</span></span>
+    </a>
+    <span class="surum">Sürüm 2.0, inceleme</span>
+  </header>
+
+  <main id="ana">
+    <h1>Ürünü ya da bulaşanı yaz, limiti ve kaynağı gör.</h1>
+    <p class="alt-baslik">“Aflatoksin” yazarsanız geçtiği tüm ürünler, “fındık” yazarsanız fındığı kapsayan tüm limitler gelir. Diğer her kelime belgedeki bütün satırlarda aranır.</p>
+
+    <div class="arama">
+      <div class="arama-satir">
+        <div class="alan">
+          <input id="q" type="text" inputmode="search" enterkeyhint="search" autocomplete="off" autocapitalize="off" spellcheck="false"
+                 role="combobox" aria-expanded="false" aria-controls="oneriler" aria-autocomplete="list"
+                 placeholder="Aflatoksin, fındık, ette kurşun…" aria-label="Ne arıyorsunuz?">
+          <button class="temizle" id="temizle" type="button" aria-label="Aramayı temizle" hidden>×</button>
+        </div>
+        <button class="btn-ara" id="ara" type="button">Ara</button>
+      </div>
+      <ul class="oneriler" id="oneriler" role="listbox" aria-label="Arama tamamlama önerileri" hidden></ul>
+    </div>
+
+    <section class="hizli" id="hizli" aria-labelledby="hizliBaslik">
+      <p class="hizli-baslik" id="hizliBaslik">Başlamak için, editör seçimi</p>
+      <div class="cipler" id="hizliCipler"></div>
+    </section>
+
+    <section class="kapsam" id="kapsam">
+      <h2>Neler var</h2>
+      <p id="kapsamMetin"></p>
+      <p>Satırların çoğu sayfadan bir kez okunarak girildi ve ikinci kontrol bekliyor. Kararlarınızda kaynak sayfayı açıp değeri belgeden teyit edin.</p>
+    </section>
+
+    <section id="sonucAlani" aria-live="polite" hidden>
+      <div class="sonuc-baslik"><h2 id="sonucBaslik">Sonuçlar</h2><span class="sayim" id="sayim"></span></div>
+      <div class="suzgec" id="suzgec" role="group" aria-label="Sonuç türü"></div>
+      <div id="sonuclar"></div>
+    </section>
+  </main>
+
+  <section id="testAlani" hidden>
+    <h1>Kabul testleri</h1>
+    <p class="alt-baslik">Bu sayfa aramayı, tarih mantığını ve veriyi bu tarayıcıda yeniden sınar.</p>
+    <div id="testSonuc"></div>
+    <p><a href="#" class="btn" style="display:inline-block;text-decoration:none">Aramaya dön</a></p>
+  </section>
+
+  <footer class="alt-bilgi">
+    <p>GıdaRef hukuki görüş değildir. Bir limitin listelenmesi o analizin zorunlu olduğu anlamına gelmez. Değerleri kullanmadan önce kaynak sayfadan ve güncel Resmî Gazete metninden teyit edin.</p>
+    <p>Kaynaklar: Türk Gıda Kodeksi Bulaşanlar Yönetmeliği Ek-1 (Resmî Gazete 5.11.2023, sayı 32360) ve Bakanlık Bulaşanlar Talimatı Ek-2 (17.03.2025, revizyon 0). Sayfa görüntüleri resmî PDF’lerden alınmıştır. Orijinal metin: <a href="https://www.resmigazete.gov.tr/eskiler/2023/11/20231105-1.htm" target="_blank" rel="noopener">resmigazete.gov.tr</a>.</p>
+    <p><a href="#testler">Kabul testlerini çalıştır</a></p>
+  </footer>
+</div>
+
+<div class="goruntuleyici" id="goruntuleyici" role="dialog" aria-modal="true" aria-labelledby="gBaslik" hidden>
+  <div class="g-ust">
+    <button class="btn" id="gKapat" type="button">Kapat</button>
+    <div class="g-baslik"><strong id="gBaslik"></strong><span id="gKapsam"></span></div>
+  </div>
+  <div class="g-kaydir" id="gKaydir" tabindex="0"><img id="gResim" alt=""></div>
+  <div class="g-alt">
+    <button class="btn" id="gOnceki" type="button">Önceki</button>
+    <span class="g-konum" id="gKonum"></span>
+    <button class="btn" id="gSonraki" type="button">Sonraki</button>
+    <button class="btn" id="gUzak" type="button" aria-label="Uzaklaştır">−</button>
+    <button class="btn g-oran" id="gSigdir" type="button" aria-label="Yakınlaştırmayı varsayılana döndür">100%</button>
+    <button class="btn" id="gYakin" type="button" aria-label="Yakınlaştır">+</button>
+  </div>
+</div>
+
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>
