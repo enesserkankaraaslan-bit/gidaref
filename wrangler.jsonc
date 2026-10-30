@@ -1,0 +1,11 @@
+// Cloudflare Workers (statik varlıklar): sunucu kodu yok, yalnız `npm run build` çıktısı (dist/) yayınlanır.
+// Güvenlik ve önbellek başlıkları dist/_headers'tan (public/_headers) okunur.
+// Workers Builds ayarları: Build command `npm run build`, Deploy command `npx wrangler deploy`.
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "gidaref",
+  "compatibility_date": "2026-10-13",
+  "assets": {
+    "directory": "./dist"
+  }
+}

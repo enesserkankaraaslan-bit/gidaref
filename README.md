@@ -62,20 +62,17 @@ Uygulamada `#kontrol` (alt bilgide "Kontrol modu (editör)"): her Ek-1 değer sa
 
 Satır kimliği: madde + ürün ifadesi + analit + tarih (veri dosyasına yeni alan eklenmedi; tekilliği testle korunur).
 
-## Yayın (Cloudflare Pages)
+## Yayın (Cloudflare Workers, statik varlıklar)
 
-Uygulama sunucusuzdur; `dist/` klasörü herhangi bir statik barındırmada çalışır.
+Uygulama sunucusuzdur; `dist/` klasörü herhangi bir statik barındırmada çalışır. Cloudflare'de **Workers** projesi olarak (Workers Builds, özel GitHub deposuna bağlı) yayınlanır; yapılandırma `wrangler.jsonc`'dedir (sunucu kodu yok, yalnız `dist/`).
 
-**Cloudflare Pages ayarları** (özel GitHub deposuna bağlı):
-
-| Ayar | Değer |
+| Workers Builds ayarı | Değer |
 |---|---|
-| Framework preset | None |
 | Build command | `npm run build` |
-| Build output directory | `dist` |
-| Ortam değişkeni | `VITE_ONIZLEME` = `1` (önizleme) ya da `0` (herkese açık) |
+| Deploy command | `npx wrangler deploy` |
+| Build variables | `VITE_ONIZLEME` = `1` (önizleme) ya da `0` (herkese açık) |
 
-Node sürümü `.node-version` dosyasından okunur (22). Güvenlik ve önbellek başlıkları `public/_headers`'tadır (CSP, HTML/service worker için `no-cache`, `/assets/*` için kalıcı önbellek).
+Yerelde prova: `npm run build` ardından `node node_modules/wrangler/bin/wrangler.js deploy --dry-run`. Node sürümü `.node-version` dosyasından okunur (22). (Cloudflare Pages'te de çalışır: build `npm run build`, çıktı `dist`.) Güvenlik ve önbellek başlıkları `public/_headers`'tadır (CSP, HTML/service worker için `no-cache`, `/assets/*` için kalıcı önbellek).
 
 **Önizleme ve herkese açık sürüm:** `VITE_ONIZLEME` `0` dışında her değerde (varsayılan) derleme önizlemedir: sayfada önizleme şeridi, `noindex` etiketi ve `robots.txt` ile arama motorlarına kapalı, alt bilgide kontrol modu bağlantısı. `0` olduğunda bunlar kalkar. İkinci okuma tamamlanmadan herkese açık yayın yapılmaz.
 
