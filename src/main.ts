@@ -1,4 +1,5 @@
 import './stil.css';
+import './stil-ek.css';
 import { aramaDizini } from './core';
 import { VERI } from './veri';
 import { baslat } from './ui/uygulama';

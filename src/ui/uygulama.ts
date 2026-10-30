@@ -135,6 +135,12 @@ export function baslat(dz: AramaDizini, DATA: Veri): void {
     if (gv.onceki instanceof HTMLElement) gv.onceki.focus();
   }
   /* hashYaz: prototipte sayfa değiştirmek adresi her zaman yazıyordu; testler false geçirerek adresi kirletmez. */
+  /* Orijinal PDF: PDF.js modülü ilk tıklamada yüklenir, ana paketi büyütmez. */
+  let pdf: Promise<import('./pdf').PdfGoruntuleyici> | null = null;
+  function pdfAc() {
+    pdf = pdf || import('./pdf').then(m => m.pdfGoruntuleyici());
+    pdf.then(p => p.ac(gv.kaynak, gv.sayfa), () => { pdf = null; $('gKapsam').textContent = 'PDF görüntüleyici yüklenemedi.'; });
+  }
   function gvGit(d: number, hashYaz?: boolean) { const l = KAYNAKLAR[gv.kaynak].sayfalar, i = l.indexOf(gv.sayfa) + d; if (i < 0 || i >= l.length) return; const z = gv.zoom; gvAc(gv.kaynak, l[i], hashYaz); gv.zoom = z; gvCiz(); }
 
   function yonlendir() {
@@ -195,6 +201,7 @@ export function baslat(dz: AramaDizini, DATA: Veri): void {
     if (hedef.closest('[data-daha]')) { durum.sinir += 40; sonuclariCiz(); }
   });
   $('gKapat').addEventListener('click', gvKapat);
+  $('gPdf').addEventListener('click', pdfAc);
   $('gOnceki').addEventListener('click', () => gvGit(-1)); $('gSonraki').addEventListener('click', () => gvGit(1));
   $('gYakin').addEventListener('click', () => { gv.zoom = Math.min(5, gv.zoom + 0.5); gvCiz(); });
   $('gUzak').addEventListener('click', () => { gv.zoom = Math.max(1, gv.zoom - 0.5); gvCiz(); });

@@ -8,7 +8,7 @@ Kapsam yol haritası: (1) Bulaşanlar Yönetmeliği Ek-1 — bu paketle hazır, 
 - `referans/GidaRef_v2_calisan_prototip.html`: claude.ai'de yayınlanmış, çalışan tek dosyalık prototip. Arama çekirdeği, tarih mantığı, görüntüleyici ve 30 kabul testi içinde (`#testler`). Yeni kodun davranış referansıdır; davranışlar korunmalı.
 - `veri/ek1_satirlar.jsonl`: Ek-1'in 45 sayfasından elle (görsel okuma) çıkarılmış 482 değer satırı, 338 madde (30.10.2026: sayfa 18–19'a bölünmüş 3.1.9.1 iki kez girilmişti, tek satıra indirildi; önceki sayı 483). Alanlar: sayfa, madde, urun_ifadesi, kategori, istisna, analit, deger, birim, esas, tarih (itibaren), dipnot, not.
 - `veri/gidaref_kayitlar_v2.json`: satırların madde bazında gruplanmış hali (343 kayıt; 6'sı Bakanlık talimatı karşılaştırma değeri) + ürün sınıflandırması (106 ürün), bulaşan aile eş anlamlıları, öneriler.
-- `resmi_kaynaklar/`: üç orijinal PDF. Ek-1 taranmış görüntüdür (metin katmanı yok); talimat PDF'inde metin katmanı var.
+- `public/kaynaklar/` (devir paketinde `resmi_kaynaklar/`): üç orijinal PDF, ASCII adlarla; eşleme ve SHA-256 README'de. Ek-1 taranmış görüntüdür (metin katmanı yok); talimat PDF'inde metin katmanı var.
 
 ## Değişmez kurallar
 1. **Resmî maksimum limit** (Ek-1) ile **Bakanlık karşılaştırma değeri** (talimat Ek-2) asla karıştırılmaz; ayrı tür, ayrı görünüm.
@@ -32,7 +32,7 @@ Kapsam yol haritası: (1) Bulaşanlar Yönetmeliği Ek-1 — bu paketle hazır, 
 - Koşullu istisnalar yalnız 1.1.12'de işaretli; benzerleri olabilir.
 - Bilinçli olarak bırakılan veri/arama tutarsızlıkları (içme sütü/yoğurt aramaları, kuru baz/kuru madde, dipnot 1, eksik talimat kayıtları): `docs/acik_tutarsizliklar.md`. Kullanıcı onayı olmadan düzeltilmez.
 - Hukuki güncellik: Bulaşanlar Yönetmeliği (RG 5.11.2023, 32360) için sonraki değişiklik taraması elle yapılmalı; talimat "Revizyon 0".
-- Prototip görselleri dosyaya gömüyor (6,4 MB); gerçek projede sayfa görüntüleri ve PDF'ler ayrı statik dosya olmalı, gerçek PDF görüntüleyici (PDF.js) eklenmeli.
+- ~~Prototip görselleri dosyaya gömüyor~~ Çözüldü (sprint 3): sayfa görüntüleri `public/sayfalar/`, PDF'ler `public/kaynaklar/`, PDF.js görüntüleyici `src/ui/pdf.ts`.
 
 ## Teknik yön (öneri, gerekirse gerekçeyle değiştir)
 - Önce sunucusuz: TypeScript + Vite ile PWA (telefona kurulabilir), veri JSON dosyaları, sayfa görüntüleri ve PDF'ler statik varlık. Barındırma: statik hosting (Cloudflare Pages / Netlify / Vercel).

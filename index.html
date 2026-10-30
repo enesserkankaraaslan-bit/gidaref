@@ -75,6 +75,7 @@
   <div class="g-ust">
     <button class="btn" id="gKapat" type="button">Kapat</button>
     <div class="g-baslik"><strong id="gBaslik"></strong><span id="gKapsam"></span></div>
+    <button class="btn g-pdf" id="gPdf" type="button" aria-label="Orijinal PDF'te aç" title="Orijinal PDF'te aç">PDF</button>
   </div>
   <div class="g-kaydir" id="gKaydir" tabindex="0"><img id="gResim" alt=""></div>
   <div class="g-alt">
@@ -84,6 +85,25 @@
     <button class="btn" id="gUzak" type="button" aria-label="Uzaklaştır">−</button>
     <button class="btn g-oran" id="gSigdir" type="button" aria-label="Yakınlaştırmayı varsayılana döndür">100%</button>
     <button class="btn" id="gYakin" type="button" aria-label="Yakınlaştır">+</button>
+  </div>
+</div>
+
+<!-- Orijinal PDF (PDF.js; modül yalnız bu pencere ilk açıldığında yüklenir) -->
+<div class="goruntuleyici" id="pdfGoruntuleyici" role="dialog" aria-modal="true" aria-labelledby="pBaslik" hidden>
+  <div class="g-ust">
+    <button class="btn" id="pKapat" type="button">Kapat</button>
+    <div class="g-baslik"><strong id="pBaslik"></strong><span id="pDurum" aria-live="polite"></span></div>
+  </div>
+  <div class="g-kaydir" id="pKaydir" tabindex="0">
+    <div class="p-sayfa" id="pSayfa"><canvas id="pTuval"></canvas><div class="textLayer" id="pMetin"></div></div>
+  </div>
+  <div class="g-alt">
+    <button class="btn" id="pOnceki" type="button">Önceki</button>
+    <span class="g-konum" id="pKonum"></span>
+    <button class="btn" id="pSonraki" type="button">Sonraki</button>
+    <button class="btn" id="pUzak" type="button" aria-label="Uzaklaştır">−</button>
+    <button class="btn g-oran" id="pSigdir" type="button" aria-label="Sayfayı ekrana sığdır">100%</button>
+    <button class="btn" id="pYakin" type="button" aria-label="Yakınlaştır">+</button>
   </div>
 </div>
 

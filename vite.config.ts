@@ -24,11 +24,20 @@ export default defineConfig({
       },
       workbox: {
         // Sayfa görüntüleri de çevrimdışı açılabilsin diye önbelleğe alınır.
-        globPatterns: ['**/*.{js,css,html,svg,png,jpg}'],
-        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024
+        globPatterns: ['**/*.{js,mjs,css,html,svg,png,jpg}'],
+        maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
+        // PDF'ler (3,3 MB) kurulumda indirilmez; ilk açılışta önbelleğe girer.
+        runtimeCaching: [{
+          urlPattern: ({ url }) => url.pathname.endsWith('.pdf'),
+          handler: 'CacheFirst',
+          options: { cacheName: 'resmi-pdf', expiration: { maxEntries: 10 }, rangeRequests: true, cacheableResponse: { statuses: [200] } }
+        }]
       }
     })
   ],
+  // pdfjs-dist 4.x üst düzey await kullanır.
+  build: { target: 'es2022' },
+  optimizeDeps: { esbuildOptions: { target: 'es2022' } },
   test: {
     include: ['tests/unit/**/*.test.ts'],
     environment: 'node'
