@@ -30,6 +30,7 @@ Kapsam yol haritası: (1) Bulaşanlar Yönetmeliği Ek-1 — bu paketle hazır, 
 - 482 satırın çoğu tek okuma; ikinci kontrol için bir "kontrol modu" (satır + sayfa görüntüsü yan yana, onayla/düzelt) gerekli. İlk 8 değer iki kez eşleşti.
 - Ürün sınıflandırması (`urun_siniflandirmasi_kaynak.py`) bir gıda mühendisi tarafından gözden geçirilmeli.
 - Koşullu istisnalar yalnız 1.1.12'de işaretli; benzerleri olabilir.
+- Bilinçli olarak bırakılan veri/arama tutarsızlıkları (içme sütü/yoğurt aramaları, kuru baz/kuru madde, dipnot 1, eksik talimat kayıtları): `docs/acik_tutarsizliklar.md`. Kullanıcı onayı olmadan düzeltilmez.
 - Hukuki güncellik: Bulaşanlar Yönetmeliği (RG 5.11.2023, 32360) için sonraki değişiklik taraması elle yapılmalı; talimat "Revizyon 0".
 - Prototip görselleri dosyaya gömüyor (6,4 MB); gerçek projede sayfa görüntüleri ve PDF'ler ayrı statik dosya olmalı, gerçek PDF görüntüleyici (PDF.js) eklenmeli.
 
