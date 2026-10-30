@@ -1,0 +1,30 @@
+# Cloudflare Pages / Netlify başlıkları. Aynı CSP `vite preview`'da da uygulanır (vite.config.ts), testler bu koşulda çalışır.
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'none'
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: no-referrer
+  X-Frame-Options: DENY
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
+  Cross-Origin-Opener-Policy: same-origin
+
+# Güncellemeler gecikmeden ulaşsın: HTML ve service worker hiç önbelleğe alınmaz.
+/
+  Cache-Control: no-cache
+/index.html
+  Cache-Control: no-cache
+/sw.js
+  Cache-Control: no-cache
+/registerSW.js
+  Cache-Control: no-cache
+/manifest.webmanifest
+  Cache-Control: no-cache
+
+# Adında içerik özeti olan derleme dosyaları değişmez.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Kaynak sayfa görüntüleri ve PDF'ler (adları sabit, nadiren değişir)
+/sayfalar/*
+  Cache-Control: public, max-age=86400
+/kaynaklar/*
+  Cache-Control: public, max-age=86400

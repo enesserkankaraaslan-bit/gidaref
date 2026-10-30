@@ -21,7 +21,9 @@ export function pdfGoruntuleyici(): PdfGoruntuleyici {
   function belge(k: KaynakKodu) {
     let p = belgeler.get(k);
     if (!p) {
-      p = getDocument({ url: import.meta.env.BASE_URL + pdfYolu(k) }).promise;
+      // isEvalSupported: false → CSP'deki script-src 'self' ile uyumlu (yazı tipi çiziminde eval kullanılmaz).
+      // disableRange: dosya tek parça (200) indirilir; service worker yalnız tam yanıtı çevrimdışı önbelleğe alır.
+      p = getDocument({ url: import.meta.env.BASE_URL + pdfYolu(k), isEvalSupported: false, disableRange: true }).promise;
       p.catch(() => belgeler.delete(k)); // ağ hatasında sonraki denemede yeniden indir
       belgeler.set(k, p);
     }

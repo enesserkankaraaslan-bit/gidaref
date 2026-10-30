@@ -7,7 +7,7 @@ Proje kuralları, arama davranışı ve yol haritası için: [CLAUDE.md](CLAUDE.
 
 ## Kurulum ve çalıştırma
 
-Gerekenler: Node.js 20+ (LTS) ve npm.
+Gerekenler: Node.js 22+ (LTS) ve npm.
 
 ```bash
 npm install
@@ -61,6 +61,27 @@ Uygulamada `#kontrol` (alt bilgide "Kontrol modu (editör)"): her Ek-1 değer sa
 4. `npm test`: kabul testlerindeki "iki kez eşleşen grup" sayısı yeni değere güncellenir; değişiklik testle birlikte commit edilir.
 
 Satır kimliği: madde + ürün ifadesi + analit + tarih (veri dosyasına yeni alan eklenmedi; tekilliği testle korunur).
+
+## Yayın (Cloudflare Pages)
+
+Uygulama sunucusuzdur; `dist/` klasörü herhangi bir statik barındırmada çalışır.
+
+**Cloudflare Pages ayarları** (özel GitHub deposuna bağlı):
+
+| Ayar | Değer |
+|---|---|
+| Framework preset | None |
+| Build command | `npm run build` |
+| Build output directory | `dist` |
+| Ortam değişkeni | `VITE_ONIZLEME` = `1` (önizleme) ya da `0` (herkese açık) |
+
+Node sürümü `.node-version` dosyasından okunur (22). Güvenlik ve önbellek başlıkları `public/_headers`'tadır (CSP, HTML/service worker için `no-cache`, `/assets/*` için kalıcı önbellek).
+
+**Önizleme ve herkese açık sürüm:** `VITE_ONIZLEME` `0` dışında her değerde (varsayılan) derleme önizlemedir: sayfada önizleme şeridi, `noindex` etiketi ve `robots.txt` ile arama motorlarına kapalı, alt bilgide kontrol modu bağlantısı. `0` olduğunda bunlar kalkar. İkinci okuma tamamlanmadan herkese açık yayın yapılmaz.
+
+**Gizlilik:** yazı tipleri dahil tüm dosyalar aynı sunucudan gelir; üçüncü taraf istek, çerez ya da analitik yoktur (CSP `connect-src 'self'`).
+
+**Telefona kurulum:** Android Chrome'da menü → "Uygulamayı yükle"; iPhone Safari'de Paylaş → "Ana Ekrana Ekle". Uygulama bir kez açıldıktan sonra arama ve sayfa görüntüleri çevrimdışı çalışır; PDF'ler ilk açıldıklarında çevrimdışı kullanılabilir hale gelir.
 
 ## Veri kuralları (özet)
 

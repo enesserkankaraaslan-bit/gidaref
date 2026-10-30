@@ -16,6 +16,8 @@
     "kontrol:uygula": "node node_modules/vite-node/vite-node.mjs scripts/kontrol-uygula.ts --"
   },
   "dependencies": {
+    "@fontsource/ibm-plex-sans": "5.1.1",
+    "@fontsource/source-serif-4": "5.1.1",
     "pdfjs-dist": "4.7.76"
   },
   "devDependencies": {
