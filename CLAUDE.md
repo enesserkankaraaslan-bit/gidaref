@@ -6,8 +6,8 @@ Kapsam yol haritası: (1) Bulaşanlar Yönetmeliği Ek-1 — bu paketle hazır, 
 
 ## Mevcut durum
 - `referans/GidaRef_v2_calisan_prototip.html`: claude.ai'de yayınlanmış, çalışan tek dosyalık prototip. Arama çekirdeği, tarih mantığı, görüntüleyici ve 30 kabul testi içinde (`#testler`). Yeni kodun davranış referansıdır; davranışlar korunmalı.
-- `veri/ek1_satirlar.jsonl`: Ek-1'in 45 sayfasından elle (görsel okuma) çıkarılmış 483 değer satırı, 338 madde. Alanlar: sayfa, madde, urun_ifadesi, kategori, istisna, analit, deger, birim, esas, tarih (itibaren), dipnot, not.
-- `veri/gidaref_kayitlar_v2.json`: satırların madde bazında gruplanmış hali (344 kayıt; 6'sı Bakanlık talimatı karşılaştırma değeri) + ürün sınıflandırması (106 ürün), bulaşan aile eş anlamlıları, öneriler.
+- `veri/ek1_satirlar.jsonl`: Ek-1'in 45 sayfasından elle (görsel okuma) çıkarılmış 482 değer satırı, 338 madde (30.10.2026: sayfa 18–19'a bölünmüş 3.1.9.1 iki kez girilmişti, tek satıra indirildi; önceki sayı 483). Alanlar: sayfa, madde, urun_ifadesi, kategori, istisna, analit, deger, birim, esas, tarih (itibaren), dipnot, not.
+- `veri/gidaref_kayitlar_v2.json`: satırların madde bazında gruplanmış hali (343 kayıt; 6'sı Bakanlık talimatı karşılaştırma değeri) + ürün sınıflandırması (106 ürün), bulaşan aile eş anlamlıları, öneriler.
 - `resmi_kaynaklar/`: üç orijinal PDF. Ek-1 taranmış görüntüdür (metin katmanı yok); talimat PDF'inde metin katmanı var.
 
 ## Değişmez kurallar
@@ -27,7 +27,7 @@ Kapsam yol haritası: (1) Bulaşanlar Yönetmeliği Ek-1 — bu paketle hazır, 
 - Aşamalı limitler: bugünün tarihine göre geçerli değer + sıradaki değer(ler). Tarihsiz değer başlangıç değeridir.
 
 ## Bilinen açıklar
-- 483 satırın çoğu tek okuma; ikinci kontrol için bir "kontrol modu" (satır + sayfa görüntüsü yan yana, onayla/düzelt) gerekli. İlk 8 değer iki kez eşleşti.
+- 482 satırın çoğu tek okuma; ikinci kontrol için bir "kontrol modu" (satır + sayfa görüntüsü yan yana, onayla/düzelt) gerekli. İlk 8 değer iki kez eşleşti.
 - Ürün sınıflandırması (`urun_siniflandirmasi_kaynak.py`) bir gıda mühendisi tarafından gözden geçirilmeli.
 - Koşullu istisnalar yalnız 1.1.12'de işaretli; benzerleri olabilir.
 - Hukuki güncellik: Bulaşanlar Yönetmeliği (RG 5.11.2023, 32360) için sonraki değişiklik taraması elle yapılmalı; talimat "Revizyon 0".
