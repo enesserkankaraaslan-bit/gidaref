@@ -1,10 +1,14 @@
 /* ===== Kontrol modu çekirdeği (DOM'dan bağımsız) =====
  * İkinci kontrol kararları yalnız eklenerek büyüyen bir geçmişte tutulur (data/ek1/kontrol_gecmisi.jsonl).
  * "Eşleşti" kararları `kontrol:uygula` ile veriye işlenir; "düzelt" kararları hiçbir zaman otomatik işlenmez. */
-import type { Kayit, Veri } from './tipler';
+import type { Kayit, MikroKriter, Veri } from './tipler';
+import { mikroDurum } from './mikro';
 
-/** Kontrol edilen tek değer satırı (ek1_satirlar.jsonl'deki bir satırın karşılığı) */
+/** Kontrol edilen tek değer satırı: Ek-1 (ek1_satirlar.jsonl) ya da mikrobiyolojik kriter (mikrobiyolojik_kriterler.jsonl) */
 export interface KontrolSatiri {
+  kaynak: 'e1' | 'mk';
+  /** yalnız kaynak 'mk' */
+  mikro?: MikroKriter;
   anahtar: string;
   kayitId: string;
   madde: string;
@@ -24,7 +28,10 @@ export interface KontrolSatiri {
 
 export type KontrolKarari = 'eslesti' | 'duzelt';
 /** Düzeltilebilecek alanlar: yalnız belgede yazanlar (kategori bizim etiketimizdir, burada yok). */
-export const DUZELTILEBILIR = ['urun', 'analit', 'deger', 'birim', 'esas', 'tarih', 'istisna', 'sayfa', 'dipnot', 'not'] as const;
+export const DUZELTILEBILIR_E1 = ['urun', 'analit', 'deger', 'birim', 'esas', 'tarih', 'istisna', 'sayfa', 'dipnot', 'not'] as const;
+/** Mikrobiyolojik kriterlerde: belgede yazan alanlar (kategori ürün etiketidir, burada yok) */
+export const DUZELTILEBILIR_MK = ['madde', 'urun', 'mikroorganizma', 'n', 'c', 'm', 'M', 'metot', 'basamak', 'tedbir', 'dipnot'] as const;
+export const DUZELTILEBILIR = [...new Set([...DUZELTILEBILIR_E1, ...DUZELTILEBILIR_MK])] as (typeof DUZELTILEBILIR_E1[number] | typeof DUZELTILEBILIR_MK[number])[];
 export type DuzeltilebilirAlan = typeof DUZELTILEBILIR[number];
 
 export interface KontrolKaydi {
@@ -54,13 +61,23 @@ export function kontrolSatirlari(veri: Veri): KontrolSatiri[] {
     if (k.kaynak !== 'e1') continue;
     for (const a of k.analitler) for (const v of a.degerler) {
       out.push({
-        anahtar: satirAnahtari(k.madde, k.urun, a.ad, v.t), kayitId: k.id, madde: k.madde, sayfa: k.sayfa,
+        kaynak: 'e1', anahtar: satirAnahtari(k.madde, k.urun, a.ad, v.t), kayitId: k.id, madde: k.madde, sayfa: k.sayfa,
         urun: k.urun, analit: a.ad, deger: v.d, birim: v.b, esas: v.e, tarih: v.t,
         istisna: k.istisna, dipnot: k.dipnot, not: k.not, veriDurumu: k.durum
       });
     }
   }
   return out;
+}
+
+/** Mikrobiyolojik kriter satırları: anahtar = "mk ¦ MK-001" (kalıcı kimlik) */
+export const mikroAnahtari = (id: string) => 'mk ¦ ' + id;
+export function mikroKontrolSatirlari(satirlar: MikroKriter[], sayfalar: Record<string, number> = {}): KontrolSatiri[] {
+  return satirlar.map(s => ({
+    kaynak: 'mk', mikro: s, anahtar: mikroAnahtari(s.id), kayitId: s.id, madde: s.madde, sayfa: sayfalar[s.id] || 0,
+    urun: s.urun_ifadesi, analit: s.mikroorganizma, deger: s.m, birim: '', esas: '', tarih: '', istisna: '',
+    dipnot: s.dipnot, not: s.uyari ? [s.uyari] : [], veriDurumu: mikroDurum(s)
+  }));
 }
 
 /** Her satır için en son karar (zaman sırasına göre; eşit zamanda geçmişteki sıra). */
@@ -126,7 +143,19 @@ export function uygulamaPlani(veri: Veri, gecmis: KontrolKaydi[]): UygulamaPlani
   return {
     eslesenGruplar, eslesenSatirlar,
     duzeltmeler: [...son.values()].filter(k => k.karar === 'duzelt' && bilinen.has(k.anahtar)),
-    bilinmeyen: [...new Set(gecmis.map(k => k.anahtar))].filter(a => !bilinen.has(a))
+    bilinmeyen: [...new Set(gecmis.map(k => k.anahtar))].filter(a => !bilinen.has(a) && !a.startsWith('mk ¦ '))
+  };
+}
+
+export interface MikroUygulamaPlani { eslesenIdler: string[]; duzeltmeler: KontrolKaydi[]; bilinmeyen: string[] }
+/** Mikrobiyolojik kriterler: son kararı "eşleşti" olan ve henüz tek okumada duran satırlar tek_okuma → eslesti olur. */
+export function mikroUygulamaPlani(satirlar: MikroKriter[], gecmis: KontrolKaydi[]): MikroUygulamaPlani {
+  const ks = mikroKontrolSatirlari(satirlar), son = sonKararlar(gecmis.filter(k => k.anahtar.startsWith('mk ¦ ')));
+  const bilinen = new Set(ks.map(s => s.anahtar));
+  return {
+    eslesenIdler: ks.filter(s => s.mikro!.durum === 'tek_okuma' && son.get(s.anahtar)?.karar === 'eslesti').map(s => s.kayitId),
+    duzeltmeler: [...son.values()].filter(k => k.karar === 'duzelt' && bilinen.has(k.anahtar)),
+    bilinmeyen: [...son.keys()].filter(a => !bilinen.has(a))
   };
 }
 

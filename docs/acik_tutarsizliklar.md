@@ -28,3 +28,18 @@ Gıda mühendisi kararı gerekenler: 2.4.5/2.4.6 (bebeğe yönelik ifadenin bitk
 - BL-009: kestane, çam fıstığı, ceviz, kaju için nikel 10 mg/kg ayrı kaydı yok.
 - BL-011: hazır (çözünebilir) kahve akrilamid 850 µg/kg ayrı kaydı yok.
 - BL-010: patates ürünleri ailesi (cips 750 vb.) yok.
+
+# Mikrobiyolojik Kriterler modülü (01.11.2026)
+
+Veri teslim edildiği gibi alındı (`data/mikro/`); hiçbir değer değiştirilmedi. Kaynak notu: `docs/MIKROBIYOLOJIK_KRITERLER_NOT.md`.
+
+1. **Resmî kaynak PDF yok.** Veri Word metninden programla çekildi; RG 13.02.2025 / 32812 PDF'i eklenmeden satırlara sayfa atanamaz, kontrol modunda "Eşleşti/Düzelt" kapalıdır.
+2. **2.5.4 ve 2.5.5 dipnot atıfları kaymış** (basamak/tedbir); `uyari` alanında, kartta "Dikkat" olarak gösteriliyor.
+3. **Ek-3 için "sonuçların değerlendirilmesi" metni boş** (Ek-1 ve Ek-2 tablolarında var).
+4. **Mikroorganizma yazım farkları:** "Koliform bakteri"/"Koliform bakteriler"; "Sülfit indirgeyen anaerob" üç yazım; "B. cereus"/"Muhtemel B.cereus"; "V. cholera" (doğrusu *V. cholerae*, belgeden teyit). Arama eş anlamlılarıyla (`data/mikro/mikroorganizma_aileleri.json`) çözüldü.
+5. **"< 10¹" ve "<10¹"** boşluk farkı.
+6. **2.1.9 aşamalı c** "31.12.2025 sonrası" diyor (Bulaşanlar "…tarihinden itibaren"); uygulama "o gün hariç, ertesi günden" yorumluyor.
+7. **"kıyma"**: Ek-1 sınıflandırmasında sığır etinin eş anlamlısı, mikrobiyolojide ayrı etiket. Karar verilene kadar eş anlamlı bırakıldı.
+8. **1.1.1 madde numarası** belgede yazılı değil (veri notunda belirtilmiş).
+9. **Ek-3'ün hangi gıdalara uygulandığı** veride yok; ürün aramalarında "Genel patojen limitleri" ayrı bölümde, teyit notuyla gösteriliyor.
+10. **Yeni ürün sınıflandırması** (`data/ortak/urun_siniflandirmasi_ek.json`: krema, dondurma, mantı, helva, lokum… ve yoğurt → fermente süt ürünü) gıda mühendisi gözden geçirmesi bekliyor.

@@ -7,7 +7,7 @@ const kart = (page: Page) => page.locator('#kKart');
 
 async function ac(page: Page, ad = 'Deneme Mühendis') {
   await page.goto('/#kontrol');
-  await expect(sayac(page)).toHaveText('Eşleşti 8 / 482 · Düzeltme önerisi 0 · Bekleyen 474');
+  await expect(sayac(page)).toHaveText('Bulaşanlar Ek-1 · Eşleşti 8 / 482 · Düzeltme önerisi 0 · Bekleyen 474');
   if (ad) await page.locator('#kAd').fill(ad);
 }
 
@@ -28,11 +28,11 @@ test('Eşleşti: sayaç artar, sıradaki satıra geçer, sayfa yenilenince korun
   await ac(page);
   const ilk = await kart(page).locator('h2').textContent();
   await kart(page).getByRole('button', { name: 'Eşleşti' }).click();
-  await expect(sayac(page)).toHaveText('Eşleşti 9 / 482 · Düzeltme önerisi 0 · Bekleyen 473');
+  await expect(sayac(page)).toHaveText('Bulaşanlar Ek-1 · Eşleşti 9 / 482 · Düzeltme önerisi 0 · Bekleyen 473');
   await expect(kart(page)).toContainText('Satır 1 / 473');
   await expect(page.locator('#kIndir')).toHaveText('Kayıtları indir (1)');
   await page.reload();
-  await expect(sayac(page)).toHaveText('Eşleşti 9 / 482 · Düzeltme önerisi 0 · Bekleyen 473');
+  await expect(sayac(page)).toHaveText('Bulaşanlar Ek-1 · Eşleşti 9 / 482 · Düzeltme önerisi 0 · Bekleyen 473');
   await expect(page.locator('#kAd')).toHaveValue('Deneme Mühendis');
   // Eşleşenler süzgecinde geçmişiyle görünür
   await page.locator('#kSuzDurum').selectOption('eslesti');
@@ -51,7 +51,7 @@ test('Düzelt: öneri kaydedilir, veri değişmez', async ({ page }) => {
   await page.locator('#kYeni').fill('9,9');
   await page.locator('#kNot').fill('deneme');
   await page.getByRole('button', { name: 'Düzeltmeyi kaydet' }).click();
-  await expect(sayac(page)).toHaveText('Eşleşti 8 / 482 · Düzeltme önerisi 1 · Bekleyen 473');
+  await expect(sayac(page)).toHaveText('Bulaşanlar Ek-1 · Eşleşti 8 / 482 · Düzeltme önerisi 1 · Bekleyen 473');
   await page.locator('#kSuzDurum').selectOption('duzeltme');
   await expect(kart(page)).toContainText('Düzeltme önerildi');
   await expect(kart(page).locator('.k-deger .sayi-k')).toHaveText(deger!); // gösterilen değer hâlâ verideki
@@ -86,6 +86,6 @@ test.describe('masaüstü', () => {
     expect(k!.x).toBeGreaterThan(g!.x + g!.width - 1);
     await page.locator('#kKart h2').click(); // odak yazı alanından çıksın
     await page.keyboard.press('e');
-    await expect(sayac(page)).toHaveText('Eşleşti 9 / 482 · Düzeltme önerisi 0 · Bekleyen 473');
+    await expect(sayac(page)).toHaveText('Bulaşanlar Ek-1 · Eşleşti 9 / 482 · Düzeltme önerisi 0 · Bekleyen 473');
   });
 });

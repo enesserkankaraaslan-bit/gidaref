@@ -4,3 +4,11 @@
 .onizleme[hidden]{display:none}
 .onizleme b{font-weight:600}
 .surum-bilgi{font-variant-numeric:tabular-nums}
+/* Mikrobiyolojik kriter kartı: bulaşan limitinden ve karşılaştırma değerinden ayrı renk */
+:root{--mor:#5B3F8C;--mor-zemin:#ECE5F6}
+:root[data-theme="dark"]{--mor:#C7B3EC;--mor-zemin:#2A2140}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--mor:#C7B3EC;--mor-zemin:#2A2140}}
+.kart-mikro{border-left-color:var(--mor)}
+.kart-mikro .tur{background:var(--mor-zemin);color:var(--mor)}
+.mikro-limit{font-family:var(--serif);font-weight:700;font-size:20px;line-height:1.2;overflow-wrap:anywhere}
+.mikro-et{font-size:14px;font-weight:600;color:var(--soluk);min-width:1.2em}

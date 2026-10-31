@@ -1,0 +1,23 @@
+{
+  "_aciklama": "Arama için mikroorganizma aileleri. 'adlar': veride (mikrobiyolojik_kriterler.jsonl) geçen mikroorganizma metinleri, birebir; her metin tam bir aileye bağlı olmalı (test). 'es': arama eş anlamlıları. Gıda mühendisi gözden geçirmesine açık.",
+  "grup": "Mikrobiyolojik kriterler",
+  "grupEs": ["mikrobiyolojik", "mikrobiyoloji", "mikrobiyolojik kriter", "mikroorganizma", "mikrop", "patojen"],
+  "aileler": [
+    { "ad": "Salmonella", "adlar": ["Salmonella", "Salmonella Typhimurium / Salmonella Enteritidis"], "es": ["salmonella", "typhimurium", "enteritidis"] },
+    { "ad": "Listeria monocytogenes", "adlar": ["L. monocytogenes"], "es": ["listeria", "monocytogenes", "l monocytogenes"] },
+    { "ad": "E. coli", "adlar": ["E. coli"], "es": ["e coli", "escherichia coli", "ecoli"] },
+    { "ad": "STEC (E. coli O157 ve diğer serotipler)", "adlar": ["E. coli O157", "Shiga toxin üreten E. coli (STEC) O157, O26, O111, O103, O145 ve O104:H4"], "es": ["stec", "vtec", "o157", "e coli o157", "shiga toksin"] },
+    { "ad": "Stafilokoklar ve enterotoksinleri", "adlar": ["Koagulaz pozitif stafilokoklar", "Stafilokokal enterotoksinler"], "es": ["stafilokok", "staphylococcus", "koagulaz pozitif", "enterotoksin", "s aureus"] },
+    { "ad": "Bacillus cereus", "adlar": ["B. cereus", "Muhtemel B.cereus"], "es": ["b cereus", "bacillus cereus", "cereus", "bacillus"] },
+    { "ad": "Cronobacter spp.", "adlar": ["Cronobacter spp. / (Enterobacter sakazakii)"], "es": ["cronobacter", "sakazakii", "enterobacter sakazakii"] },
+    { "ad": "Enterobacteriaceae", "adlar": ["Enterobacteriaceae"], "es": ["enterobacteriaceae", "enterobakteri"] },
+    { "ad": "Koliform bakteriler", "adlar": ["Koliform bakteri", "Koliform bakteriler"], "es": ["koliform", "koliform bakteri", "coliform"] },
+    { "ad": "Sülfit indirgeyen anaeroblar", "adlar": ["Sülfit indirgeyen anaerob bakteri", "Sülfit indirgeyen anaerob bakteri (sadece et içerenlerde)", "Sülfit indirgeyen anaerob"], "es": ["sulfit indirgeyen", "anaerob", "clostridium"] },
+    { "ad": "Campylobacter", "adlar": ["Campylobacter spp.", "Termotolerant Campylobacter spp."], "es": ["campylobacter", "kampilobakter"] },
+    { "ad": "Vibrio", "adlar": ["V. cholera", "V. parahaemolyticus"], "es": ["vibrio", "cholera", "cholerae", "kolera", "parahaemolyticus"] },
+    { "ad": "Aerobik koloni sayısı", "adlar": ["Aerobik koloni sayısı"], "es": ["aerobik koloni", "toplam aerob", "tmab", "toplam mezofilik aerob", "toplam canli"] },
+    { "ad": "Küf", "adlar": ["Küf"], "es": ["kuf", "maya kuf", "kuf maya"] },
+    { "ad": "Sünme (rop) sporu", "adlar": ["Sünme (rop) sporu"], "es": ["sunme", "rop", "rope"] },
+    { "ad": "Histamin", "adlar": ["Histamin"], "es": ["histamin"] }
+  ]
+}

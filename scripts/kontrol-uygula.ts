@@ -10,7 +10,7 @@ import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  CSV_ESLESTI, csvAyristir, csvYaz, gecmisBirlestir, jsonlOku, jsonlYaz, kontrolSatirlari, pyJson, satirAnahtari, uygulamaPlani, type Veri
+  CSV_ESLESTI, csvAyristir, csvYaz, gecmisBirlestir, jsonlOku, jsonlYaz, kontrolSatirlari, mikroJsonlOku, mikroUygulamaPlani, pyJson, satirAnahtari, uygulamaPlani, type Veri
 } from '../src/core';
 
 const KOK = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -42,6 +42,15 @@ if (plan.duzeltmeler.length) {
 }
 if (plan.bilinmeyen.length) console.log('\nUYARI: veride karşılığı olmayan anahtarlar (veri değişmiş olabilir):\n  ' + plan.bilinmeyen.join('\n  '));
 
+/* Mikrobiyolojik kriterler: satır kimliği MK-xxx; durum tek_okuma → eslesti */
+const MIKRO_DIZINI = join(KOK, 'data', 'mikro');
+const mikroYol = join(MIKRO_DIZINI, 'mikrobiyolojik_kriterler.jsonl');
+const mikroMetin = readFileSync(mikroYol, 'utf8');
+const mikroPlan = mikroUygulamaPlani(mikroJsonlOku(mikroMetin), gecmis);
+console.log('\nMikrobiyolojik kriterler: tek_okuma → eslesti olacak satır: ' + (mikroPlan.eslesenIdler.length ? mikroPlan.eslesenIdler.join(', ') : 'yok'));
+for (const k of mikroPlan.duzeltmeler) console.log('  - düzeltme önerisi (OTOMATİK İŞLENMEZ): ' + k.anahtar + ' | ' + k.alan + ': "' + (k.eski ?? '') + '" → "' + k.yeni + '"' + (k.not ? ' | not: ' + k.not : '') + ' | ' + k.kontrol_eden);
+if (mikroPlan.bilinmeyen.length) console.log('UYARI: mikrobiyolojik veride karşılığı olmayan anahtarlar:\n  ' + mikroPlan.bilinmeyen.join('\n  '));
+
 if (!yaz) {
   console.log('\nRapor modu: hiçbir dosya değişmedi. Yazmak için --yaz ekleyin.');
   process.exit(0);
@@ -52,6 +61,7 @@ const damga = new Date().toISOString().replace(/[-:]/g, '').replace('T', '-').sl
 const yedek = resolve(KOK, '..', 'yedekler', 'ek1_' + damga + '_kontrol-uygula');
 mkdirSync(yedek, { recursive: true });
 cpSync(VERI_DIZINI, yedek, { recursive: true });
+cpSync(MIKRO_DIZINI, join(yedek, 'mikro'), { recursive: true });
 console.log('\nYedek: ' + yedek);
 
 writeFileSync(yol('kontrol_gecmisi.jsonl'), jsonlYaz(gecmis), 'utf8');
@@ -72,5 +82,24 @@ const csvYeni = csvMetin.split(EOL).map((l, i) => {
 }).join(EOL);
 writeFileSync(yol('ek1_tum_satirlar.csv'), csvYeni, 'utf8');
 
+const mikroEs = new Set(mikroPlan.eslesenIdler);
+if (mikroEs.size) {
+  writeFileSync(mikroYol, mikroMetin.split('\n').map(l => {
+    if (!l) return l;
+    const o = JSON.parse(l) as { id: string; durum: string };
+    if (!mikroEs.has(o.id) || o.durum !== 'tek_okuma') return l;
+    o.durum = 'eslesti'; return pyJson(o);
+  }).join('\n'), 'utf8');
+  const mcsvYol = join(MIKRO_DIZINI, 'mikrobiyolojik_kriterler.csv'), mcsv = readFileSync(mcsvYol, 'utf8');
+  const MEOL = mcsv.includes('\r\n') ? '\r\n' : '\n', satirlar = mcsv.split(MEOL);
+  const baslik = csvAyristir(satirlar[0].replace(/^﻿/, '')), iDurum = baslik.indexOf('durum');
+  writeFileSync(mcsvYol, satirlar.map((l, i) => {
+    if (i === 0 || !l) return l;
+    const f = csvAyristir(l);
+    if (mikroEs.has(f[0]) && f[iDurum] === 'tek_okuma') { f[iDurum] = 'eslesti'; return csvYaz(f); }
+    return l;
+  }).join(MEOL), 'utf8');
+  console.log('Yazıldı: mikrobiyolojik_kriterler.jsonl/.csv (' + mikroEs.size + ' satır eslesti).');
+}
 console.log('Yazıldı: kontrol_gecmisi.jsonl, gidaref_kayitlar_v2.json (' + plan.eslesenGruplar.length + ' grup), ek1_tum_satirlar.csv (' + degisen + ' satır).');
 console.log('Sonra: npm test — kabul testlerindeki "iki kez eşleşen grup" sayısını yeni değere güncelleyin ve değişikliği testle birlikte commit edin.');

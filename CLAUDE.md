@@ -8,6 +8,8 @@ Kapsam yol haritası: (1) Bulaşanlar Yönetmeliği Ek-1 — bu paketle hazır, 
 - `referans/GidaRef_v2_calisan_prototip.html`: claude.ai'de yayınlanmış, çalışan tek dosyalık prototip. Arama çekirdeği, tarih mantığı, görüntüleyici ve 30 kabul testi içinde (`#testler`). Yeni kodun davranış referansıdır; davranışlar korunmalı.
 - `veri/ek1_satirlar.jsonl`: Ek-1'in 45 sayfasından elle (görsel okuma) çıkarılmış 482 değer satırı, 338 madde (30.10.2026: sayfa 18–19'a bölünmüş 3.1.9.1 iki kez girilmişti, tek satıra indirildi; önceki sayı 483). Alanlar: sayfa, madde, urun_ifadesi, kategori, istisna, analit, deger, birim, esas, tarih (itibaren), dipnot, not.
 - `veri/gidaref_kayitlar_v2.json`: satırların madde bazında gruplanmış hali (343 kayıt; 6'sı Bakanlık talimatı karşılaştırma değeri) + ürün sınıflandırması (106 ürün), bulaşan aile eş anlamlıları, öneriler.
+- `data/mikro/`: Mikrobiyolojik Kriterler Yönetmeliği (RG 13.02.2025, 32812) Ek-1/2/3, 174 satır (n, c, m, M, metot, basamak, tedbir); Word metninden programla çekildi, hepsi tek okuma, teslim edildiği gibi. Şema ve davranış: `src/core/mikro.ts`. **Resmî PDF henüz yok**: sayfa eşlemesi (`data/mikro/sayfalar.json`) yapılana kadar kontrol modunda Eşleşti/Düzelt kapalı. Açık noktalar: `docs/acik_tutarsizliklar.md`.
+- İçme suyu modülü (71 parametre, kullanıcının masaüstündeki zip'te) henüz eklenmedi.
 - `public/kaynaklar/` (devir paketinde `resmi_kaynaklar/`): üç orijinal PDF, ASCII adlarla; eşleme ve SHA-256 README'de. Ek-1 taranmış görüntüdür (metin katmanı yok); talimat PDF'inde metin katmanı var.
 
 ## Değişmez kurallar

@@ -24,6 +24,9 @@
 :root[data-theme="dark"] .k-kaydir{background:#0A100E}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .k-kaydir{background:#0A100E}}
 .k-kaydir img{display:block;background:#fff;max-width:none;width:100%}
+.k-kaydir img[hidden],.k-yok[hidden]{display:none}
+.k-yok{margin:16px;padding:12px 14px;border-radius:10px;background:var(--kagit);color:var(--soluk);font-size:15px}
+.k-kart .mikro-limit{font-family:var(--serif);font-weight:700;font-size:18px}
 .k-kart{background:var(--kagit);border:1px solid var(--cizgi);border-radius:14px;padding:14px}
 .k-kart h2{font-family:var(--serif);font-size:20px;margin:4px 0 8px}
 .k-kart h2 small{font-family:var(--sans);font-size:14px;font-weight:400;color:var(--soluk)}
@@ -60,3 +63,4 @@
   .k-gorsel{position:sticky;top:8px}
   .k-kaydir{height:calc(100vh - 220px)}
 }
+.k-araclar label[hidden]{display:none}

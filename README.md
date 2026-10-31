@@ -31,6 +31,8 @@ Uygulama içinde `#testler` adresi aynı kabul testlerini tarayıcıda çalışt
 | `src/ui/` | Arayüz (düz TypeScript, çatı yok) |
 | `data/ek1/` | Veri: `gidaref_kayitlar_v2.json` (uygulamanın okuduğu), `ek1_satirlar.jsonl` (satır düzeyi), dipnotlar, dönüşüm betikleri |
 | `public/kaynaklar/` | Orijinal PDF'ler (aşağıdaki tablo); uygulamada PDF.js ile açılır |
+| `data/mikro/` | Mikrobiyolojik Kriterler Yönetmeliği: `mikrobiyolojik_kriterler.jsonl/.csv` (174 satır, teslim edildiği gibi), dipnot/değerlendirme, Ek-4 numune alma, `mikroorganizma_aileleri.json` (arama eş anlamlıları) |
+| `data/ortak/` | Ortak ürün sınıflandırmasına ekler (Ek-1 sınıflandırmasıyla birleştirilir) |
 | `public/sayfalar/` | Kaynak sayfa görüntüleri (`e1/1..45.jpg`, `tl/9,10,14,15.jpg`), prototipten çıkarıldı; JPG numarası = PDF sayfa numarası |
 | `reference/` | Çalışan prototip, **değiştirilmez**; davranış referansı |
 | `docs/` | Doğrulama kaydı ve devir notları |

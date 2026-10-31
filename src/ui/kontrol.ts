@@ -4,27 +4,41 @@
  * Bu modül yalnız #kontrol açıldığında yüklenir. */
 import depoGecmisi from '../../data/ek1/kontrol_gecmisi.jsonl?raw';
 import {
-  DUZELTILEBILIR, gecmisBirlestir, jsonlOku, jsonlYaz, kontrolSatirlari, satirDurumu, sayfaYolu, sonKararlar, KAYNAKLAR,
+  DUZELTILEBILIR_E1, DUZELTILEBILIR_MK, gecmisBirlestir, jsonlOku, jsonlYaz, kontrolSatirlari, mikroKontrolSatirlari, satirDurumu, sayfaYolu, sonKararlar, KAYNAKLAR,
   type DuzeltilebilirAlan, type KontrolKaydi, type KontrolSatiri, type SatirDurumu, type Veri
 } from '../core';
+import { MIKRO_SATIRLAR } from '../veri';
 import './kontrol.css';
 
 const ANAHTAR_KAYIT = 'gidaref.kontrol.v1', ANAHTAR_AD = 'gidaref.kontrol.ad';
-const ALAN_ADI: Record<DuzeltilebilirAlan, string> = { urun: 'Ürün ifadesi', analit: 'Analit', deger: 'Değer', birim: 'Birim', esas: 'Ölçüm esası', tarih: 'Tarih (itibaren)', istisna: 'Hariç (istisna)', sayfa: 'Sayfa', dipnot: 'Dipnot', not: 'Not' };
+const ALAN_ADI: Record<DuzeltilebilirAlan, string> = {
+  urun: 'Ürün ifadesi', analit: 'Analit', deger: 'Değer', birim: 'Birim', esas: 'Ölçüm esası', tarih: 'Tarih (itibaren)', istisna: 'Hariç (istisna)', sayfa: 'Sayfa', dipnot: 'Dipnot', not: 'Not',
+  madde: 'Madde no', mikroorganizma: 'Mikroorganizma', n: 'n', c: 'c', m: 'm', M: 'M', metot: 'Metot', basamak: 'Uygulanacağı basamak', tedbir: 'Uygun çıkmazsa tedbir'
+};
 const DURUM_ADI: Record<SatirDurumu, string> = { bekliyor: 'Bekliyor', eslesti: 'Eşleşti', duzeltme: 'Düzeltme önerildi' };
 
 const esc = (s: unknown) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
 const oku = (k: string) => { try { return localStorage.getItem(k); } catch { return null; } };
 const sakla = (k: string, v: string) => { try { localStorage.setItem(k, v); return true; } catch { return false; } };
-const alanDegeri = (s: KontrolSatiri, a: DuzeltilebilirAlan) => Array.isArray(s[a]) ? (s[a] as string[]).join('; ') : String(s[a]);
+function alanDegeri(s: KontrolSatiri, a: DuzeltilebilirAlan): string {
+  if (s.mikro) {
+    const m = s.mikro as unknown as Record<string, unknown>, v = a === 'urun' ? m.urun_ifadesi : m[a];
+    return Array.isArray(v) ? v.join('; ') : String(v ?? '');
+  }
+  const v = (s as unknown as Record<string, unknown>)[a];
+  return Array.isArray(v) ? v.join('; ') : String(v ?? '');
+}
+/** Kaynak sayfası görülemeyen satırda karar verilemez (ikinci kontrol belgeye bakarak yapılır). */
+const kararAcik = (s: KontrolSatiri) => s.kaynak === 'e1' || s.sayfa > 0;
 const zamanYaz = (z: string) => new Date(z).toLocaleString('tr-TR', { dateStyle: 'short', timeStyle: 'short' });
 
 export function kontrolBaslat(kok: HTMLElement, veri: Veri): void {
-  const satirlar = kontrolSatirlari(veri);
+  const KAYNAK_SATIRLARI = { e1: kontrolSatirlari(veri), mk: mikroKontrolSatirlari(MIKRO_SATIRLAR) };
+  let satirlar = KAYNAK_SATIRLARI.e1;
   const depo = jsonlOku(depoGecmisi);
   let yerel: KontrolKaydi[] = [];
   try { yerel = jsonlOku(oku(ANAHTAR_KAYIT) || ''); } catch { yerel = []; }
-  const d = { durum: 'bekliyor' as SatirDurumu | 'tumu', sayfa: 0, secili: '', zoom: 1, duzelt: false, mesaj: '' };
+  const d = { kaynak: 'e1' as 'e1' | 'mk', durum: 'bekliyor' as SatirDurumu | 'tumu', sayfa: 0, secili: '', zoom: 1, duzelt: false, mesaj: '' };
 
   kok.innerHTML = `
     <header class="k-ust">
@@ -32,8 +46,9 @@ export function kontrolBaslat(kok: HTMLElement, veri: Veri): void {
       <p class="k-sayac" id="kSayac" aria-live="polite"></p>
       <div class="k-araclar">
         <label>Kontrol eden <input id="kAd" autocomplete="name" placeholder="Ad Soyad" required></label>
+        <label>Kaynak <select id="kKaynak"><option value="e1">Bulaşanlar Ek-1</option><option value="mk">Mikrobiyolojik kriterler</option></select></label>
         <label>Durum <select id="kSuzDurum"><option value="bekliyor">Bekleyen</option><option value="duzeltme">Düzeltme önerisi</option><option value="eslesti">Eşleşti</option><option value="tumu">Tümü</option></select></label>
-        <label>Sayfa <select id="kSuzSayfa"><option value="0">Tümü</option>${KAYNAKLAR.e1.sayfalar.map(n => `<option value="${n}">${n}</option>`).join('')}</select></label>
+        <label id="kSayfaEtiket">Sayfa <select id="kSuzSayfa"><option value="0">Tümü</option>${KAYNAKLAR.e1.sayfalar.map(n => `<option value="${n}">${n}</option>`).join('')}</select></label>
         <button class="btn" id="kIndir" type="button"></button>
         <label class="btn k-yukle">Kayıt yükle<input id="kYukle" type="file" accept=".jsonl,application/jsonl,text/plain"></label>
       </div>
@@ -42,7 +57,7 @@ export function kontrolBaslat(kok: HTMLElement, veri: Veri): void {
     <div class="k-govde">
       <section class="k-gorsel" aria-label="Kaynak sayfa">
         <div class="k-gorsel-ust"><strong id="kGorselBaslik"></strong><span class="k-zoom"><button class="btn" id="kUzak" type="button" aria-label="Uzaklaştır">−</button><button class="btn" id="kYakin" type="button" aria-label="Yakınlaştır">+</button></span></div>
-        <div class="k-kaydir" id="kKaydir" tabindex="0"><img id="kResim" alt=""></div>
+        <div class="k-kaydir" id="kKaydir" tabindex="0"><img id="kResim" alt=""><p class="k-yok" id="kYok" hidden>Bu kaynağın resmî PDF’i henüz eklenmedi. İkinci kontrol belgeye bakarak yapıldığı için bu satırlarda “Eşleşti” ve “Düzelt” kapalıdır; satırları yalnız inceleyebilirsiniz.</p></div>
       </section>
       <section class="k-kart" id="kKart" aria-live="polite"></section>
     </div>`;
@@ -64,7 +79,7 @@ export function kontrolBaslat(kok: HTMLElement, veri: Veri): void {
     const { gecmis, eklenen } = birlesik(), son = sonKararlar(gecmis);
     const say = { bekliyor: 0, eslesti: 0, duzeltme: 0 };
     satirlar.forEach(s => say[satirDurumu(s, son)]++);
-    $('kSayac').textContent = `Eşleşti ${say.eslesti} / ${satirlar.length} · Düzeltme önerisi ${say.duzeltme} · Bekleyen ${say.bekliyor}`;
+    $('kSayac').textContent = (d.kaynak === 'mk' ? 'Mikrobiyolojik kriterler · ' : 'Bulaşanlar Ek-1 · ') + `Eşleşti ${say.eslesti} / ${satirlar.length} · Düzeltme önerisi ${say.duzeltme} · Bekleyen ${say.bekliyor}`;
     const indir = $<HTMLButtonElement>('kIndir');
     indir.textContent = `Kayıtları indir (${eklenen.length})`; indir.disabled = !eklenen.length;
 
@@ -78,19 +93,25 @@ export function kontrolBaslat(kok: HTMLElement, veri: Veri): void {
       return;
     }
     d.secili = s.anahtar;
-    const durum = satirDurumu(s, son), adVar = !!ad.value.trim();
+    const durum = satirDurumu(s, son), acik = kararAcik(s), adVar = !!ad.value.trim() && acik;
+    const alan = (et: string, v: string, cls = '') => v ? `<div class="${cls}"><dt>${et}</dt><dd>${esc(v)}</dd></div>` : '';
+    const mk = s.mikro;
+    const alanlarHtml = mk
+      ? `${alan('Ürün', mk.urun_ifadesi)}${alan('Mikroorganizma', mk.mikroorganizma)}${alan('Tablo', mk.ek + ' · ' + mk.tablo)}${alan('n', mk.n || '(belirtilmemiş)')}${alan('c', mk.c || '(belirtilmemiş)')}${mk.c_asamali ? alan('Aşamalı c', mk.c_asamali.map(x => (x.tarih || 'başlangıç') + ': ' + x.c).join('; ')) : ''}
+         <div class="k-deger"><dt>m</dt><dd><span class="mikro-limit">${esc(mk.m)}</span></dd></div><div class="k-deger"><dt>M</dt><dd><span class="mikro-limit">${esc(mk.M)}</span></dd></div>
+         ${alan('Metot', mk.metot)}${alan('Basamak', mk.basamak)}${alan('Tedbir', mk.tedbir)}${alan('Dipnot', mk.dipnot.join('; '))}${alan('Uyarı', mk.uyari)}`
+      : '';
     const satirGecmisi = gecmis.filter(k => k.anahtar === s.anahtar);
     const yerelKimlik = new Set(eklenen);
-    const alan = (et: string, v: string, cls = '') => v ? `<div class="${cls}"><dt>${et}</dt><dd>${esc(v)}</dd></div>` : '';
     $('kKart').innerHTML = `
       <div class="k-kart-ust"><span class="k-konum">Satır ${i + 1} / ${l.length}</span><span class="k-durum k-durum-${durum}">${DURUM_ADI[durum]}</span></div>
-      <h2>Madde ${esc(s.madde)} <small>sayfa ${s.sayfa}</small></h2>
-      <dl class="k-alanlar">
+      <h2>Madde ${esc(s.madde)} <small>${mk ? esc(mk.id) + (s.sayfa ? ' · sayfa ' + s.sayfa : '') : 'sayfa ' + s.sayfa}</small></h2>
+      <dl class="k-alanlar">${mk ? alanlarHtml : `
         ${alan('Ürün', s.urun)}${alan('Analit', s.analit)}
         <div class="k-deger"><dt>Değer</dt><dd><span class="sayi-k">${esc(s.deger)}</span> <span class="birim-k">${esc(s.birim)}</span></dd></div>
-        ${alan('Ölçüm esası', s.esas)}${alan('Tarih', s.tarih ? s.tarih + '’ten itibaren' : '')}${alan('Hariç', s.istisna)}${alan('Dipnot', s.dipnot.join('; '))}${alan('Not', s.not.join('; '))}
+        ${alan('Ölçüm esası', s.esas)}${alan('Tarih', s.tarih ? s.tarih + '’ten itibaren' : '')}${alan('Hariç', s.istisna)}${alan('Dipnot', s.dipnot.join('; '))}${alan('Not', s.not.join('; '))}`}
       </dl>
-      ${adVar ? '' : '<p class="k-uyari">Karar vermek için önce “Kontrol eden” alanına adınızı yazın.</p>'}
+      ${!acik ? '<p class="k-uyari">Resmî kaynak PDF eklenmeden bu satır için karar verilemez.</p>' : adVar ? '' : '<p class="k-uyari">Karar vermek için önce “Kontrol eden” alanına adınızı yazın.</p>'}
       <div class="k-dugmeler">
         <button class="btn" type="button" data-k="onceki" ${i <= 0 ? 'disabled' : ''}>Önceki</button>
         <button class="btn k-birincil" type="button" data-k="eslesti" ${adVar ? '' : 'disabled'}>Eşleşti</button>
@@ -98,7 +119,7 @@ export function kontrolBaslat(kok: HTMLElement, veri: Veri): void {
         <button class="btn" type="button" data-k="sonraki" ${i >= l.length - 1 ? 'disabled' : ''}>Atla</button>
       </div>
       <form class="k-duzelt" id="kDuzelt" ${d.duzelt ? '' : 'hidden'}>
-        <label>Alan <select id="kAlan">${DUZELTILEBILIR.map(a => `<option value="${a}">${ALAN_ADI[a]}</option>`).join('')}</select></label>
+        <label>Alan <select id="kAlan">${(mk ? DUZELTILEBILIR_MK : DUZELTILEBILIR_E1).map(a => `<option value="${a}">${ALAN_ADI[a]}</option>`).join('')}</select></label>
         <p class="k-eski">Kayıttaki: <span id="kEski"></span></p>
         <label>Belgede yazan <input id="kYeni" required autocomplete="off"></label>
         <label>Not <textarea id="kNot" rows="2" placeholder="İsteğe bağlı"></textarea></label>
@@ -110,7 +131,11 @@ export function kontrolBaslat(kok: HTMLElement, veri: Veri): void {
       </details>`;
     if (d.duzelt) { alanSecildi(); $('kYeni').focus(); }
 
-    const img = $<HTMLImageElement>('kResim'), src = import.meta.env.BASE_URL + sayfaYolu('e1', s.sayfa);
+    const img = $<HTMLImageElement>('kResim');
+    const gorselVar = s.kaynak === 'e1';
+    img.hidden = !gorselVar; $('kYok').hidden = gorselVar;
+    if (!gorselVar) { $('kGorselBaslik').textContent = 'Mikrobiyolojik Kriterler Yönetmeliği'; return; }
+    const src = import.meta.env.BASE_URL + sayfaYolu('e1', s.sayfa);
     if (img.getAttribute('src') !== src) { img.src = src; $('kKaydir').scrollTop = 0; }
     img.alt = 'Bulaşanlar Yönetmeliği Ek-1, sayfa ' + s.sayfa;
     img.style.width = (d.zoom * 100) + '%';
@@ -125,7 +150,7 @@ export function kontrolBaslat(kok: HTMLElement, veri: Veri): void {
   }
   /** Karar sonrası: süzgeçte kalan bir sonraki satıra geç (karar verilen satır süzgeçten çıkabilir). */
   function kaydet(k: Omit<KontrolKaydi, 'anahtar' | 'madde' | 'sayfa' | 'kontrol_eden' | 'zaman'>) {
-    const s = seciliSatir(), adVal = ad.value.trim(); if (!adVal) return;
+    const s = seciliSatir(), adVal = ad.value.trim(); if (!adVal || !kararAcik(s)) return;
     const onceki = liste(sonKararlar(birlesik().gecmis)), i = onceki.findIndex(x => x.anahtar === s.anahtar);
     yerel = yerel.concat({ anahtar: s.anahtar, madde: s.madde, sayfa: s.sayfa, ...k, kontrol_eden: adVal, zaman: new Date().toISOString() });
     if (!sakla(ANAHTAR_KAYIT, jsonlYaz(yerel))) mesaj('Uyarı: tarayıcı kaydı saklayamadı; kayıtları hemen indirin.');
@@ -152,6 +177,11 @@ export function kontrolBaslat(kok: HTMLElement, veri: Veri): void {
   });
   ad.addEventListener('input', () => { sakla(ANAHTAR_AD, ad.value.trim()); ciz(); ad.focus(); });
   $<HTMLSelectElement>('kSuzDurum').addEventListener('change', e => { d.durum = (e.target as HTMLSelectElement).value as typeof d.durum; d.duzelt = false; ciz(); });
+  $<HTMLSelectElement>('kKaynak').addEventListener('change', e => {
+    d.kaynak = (e.target as HTMLSelectElement).value as typeof d.kaynak; satirlar = KAYNAK_SATIRLARI[d.kaynak];
+    d.sayfa = 0; $<HTMLSelectElement>('kSuzSayfa').value = '0'; $('kSayfaEtiket').hidden = d.kaynak !== 'e1';
+    d.secili = ''; d.duzelt = false; ciz();
+  });
   $<HTMLSelectElement>('kSuzSayfa').addEventListener('change', e => { d.sayfa = Number((e.target as HTMLSelectElement).value); d.secili = ''; d.duzelt = false; ciz(); });
   $('kYakin').addEventListener('click', () => { d.zoom = Math.min(5, d.zoom + 0.5); ciz(); });
   $('kUzak').addEventListener('click', () => { d.zoom = Math.max(1, d.zoom - 0.5); ciz(); });
@@ -178,7 +208,7 @@ export function kontrolBaslat(kok: HTMLElement, veri: Veri): void {
     if ((e.target as Element).closest('input, textarea, select')) return;
     if (e.key === 'ArrowRight') git(1); else if (e.key === 'ArrowLeft') git(-1);
     else if ((e.key === 'e' || e.key === 'E') && ad.value.trim()) kaydet({ karar: 'eslesti' });
-    else if ((e.key === 'd' || e.key === 'D') && ad.value.trim()) { d.duzelt = true; ciz(); }
+    else if ((e.key === 'd' || e.key === 'D') && ad.value.trim() && kararAcik(seciliSatir())) { d.duzelt = true; ciz(); }
   });
 
   ciz();

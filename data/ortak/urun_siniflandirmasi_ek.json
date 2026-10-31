@@ -1,0 +1,32 @@
+{
+  "_aciklama": "Ortak ürün sınıflandırmasına ekler (Mikrobiyolojik Kriterler modülüyle gelen ürün etiketleri). Ek-1 sınıflandırması (data/ek1/gidaref_kayitlar_v2.json → urunler, katEs) değişmeden kalır; bu dosya yüklenirken onunla birleştirilir. 'kıyma' bilerek eklenmedi: Ek-1'de sığır etinin eş anlamlısı (karar bekliyor, docs/acik_tutarsizliklar.md). Gıda mühendisi gözden geçirmesine açık.",
+  "urunler": {
+    "krema": { "ust": ["süt ürünü"], "es": ["kaymak"] },
+    "dondurma": { "ust": ["süt ürünü"], "es": [] },
+    "mantı": { "ust": ["dolgulu hamur ürünü", "hamur ürünü"], "es": [] },
+    "baklava": { "ust": ["tatlı", "hamur ürünü"], "es": [] },
+    "helva": { "ust": ["tatlı", "şekerli ürün"], "es": [] },
+    "tahin helvası": { "ust": ["helva", "tatlı", "şekerli ürün"], "es": [] },
+    "lokum": { "ust": ["tatlı", "şekerli ürün"], "es": [] },
+    "pekmez": { "ust": ["şekerli ürün"], "es": [] },
+    "mayonez": { "ust": ["sos"], "es": [] },
+    "çorba": { "ust": ["hazır yemek"], "es": [] },
+    "et suyu": { "ust": ["çorba"], "es": ["kemik suyu"] },
+    "pilav": { "ust": ["hazır yemek"], "es": [] },
+    "salata": { "ust": ["hazır yemek"], "es": [] },
+    "filiz": { "ust": ["sebze"], "es": ["çimlenmiş tohum"] },
+    "jelatin": { "ust": ["hayvansal ürün"], "es": [] },
+    "buz": { "ust": [], "es": [] },
+    "nişasta": { "ust": [], "es": [] },
+    "kahve beyazlatıcısı": { "ust": [], "es": [] }
+  },
+  "ustEkle": {
+    "yoğurt": ["fermente süt ürünü"]
+  },
+  "katEs": {
+    "hazır yemek": ["yemek", "toplu yemek"],
+    "catering": ["toplu beslenme", "yemek fabrikası"],
+    "fermente süt ürünü": ["kefir", "ayran"],
+    "tüketime hazır gıda": ["hazır gıda"]
+  }
+}

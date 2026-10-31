@@ -14,7 +14,8 @@ export interface Baglanti { seviye: 0 | 1 | 2 | 3; ust: string | null; ozel?: st
 export interface SonucBaglantisi extends Baglanti { urun: string }
 export interface Sonuc { d: Kayit; bag: SonucBaglantisi | null }
 export type AramaModu = 'bos' | 'urun' | 'aile' | 'metin';
-export interface AramaSonucu extends Cozumleme { sonuc: Sonuc[]; gizlenen: number; mod: AramaModu }
+/** genel: ürün aramasında Ek-3 genel patojen limitleri (ürüne özgü kriterlerden ayrı gösterilir) */
+export interface AramaSonucu extends Cozumleme { sonuc: Sonuc[]; gizlenen: number; mod: AramaModu; genel: Sonuc[] }
 
 export interface Aday { ad: string; sorgu: string; tur: string; rank: number; formlar: Token[][] }
 
@@ -39,8 +40,9 @@ export function aramaDizini(DATA: Veri): AramaDizini {
     tamT: tokenler([k.urun, k.kat.join(' '), k.aile, k.analitler.map(a => a.ad).join(' '), k.not.join(' ')].join(' ')),
     refler: maddeRefleri(k.istisna)
   }));
-  const MADDE_INDEX: Record<string, DizinKaydi[]> = {};
-  KAYITLAR.forEach(d => (MADDE_INDEX[d.k.madde] = MADDE_INDEX[d.k.madde] || []).push(d));
+  /* madde numaraları kaynak içinde anlamlıdır (Ek-1 1.1.1 ≠ mikrobiyolojik 1.1.1) */
+  const MADDE_INDEX: Record<string, Record<string, DizinKaydi[]>> = {};
+  KAYITLAR.forEach(d => { const k = (MADDE_INDEX[d.k.kaynak] = MADDE_INDEX[d.k.kaynak] || {}); (k[d.k.madde] = k[d.k.madde] || []).push(d); });
 
   /* --- terimler: ürün, kategori, bulaşan ailesi, grup --- */
   const URUN_ADLARI = Object.keys(DATA.urunler);
@@ -94,8 +96,9 @@ export function aramaDizini(DATA: Veri): AramaDizini {
     }
     /* istisna: daha özel satıra yönlendirme ya da ürün adı */
     if (d.refler.length) {
+      const idx = MADDE_INDEX[d.k.kaynak];
       for (const r of d.refler) {
-        for (const m in MADDE_INDEX) { if (refeUyar(m, r) && MADDE_INDEX[m].some(x => dogrudan(x, u))) return { seviye: d.k.kismi ? 3 : 0, ust: ortak, ozel: m }; }
+        for (const m in idx) { if (refeUyar(m, r) && idx[m].some(x => dogrudan(x, u))) return { seviye: d.k.kismi ? 3 : 0, ust: ortak, ozel: m }; }
       }
     }
     const adlar = [u].concat(bilgi ? bilgi.es : []);
@@ -105,11 +108,16 @@ export function aramaDizini(DATA: Veri): AramaDizini {
 
   function ara(sorgu: string): AramaSonucu {
     const c = cozumle(sorgu);
-    const sonuc: Sonuc[] = []; let gizlenen = 0;
+    const sonuc: Sonuc[] = [], genel: Sonuc[] = []; let gizlenen = 0;
     const bos = !c.urunler.length && !c.aileler.size && !c.kalan.length;
-    if (bos) return Object.assign(c, { sonuc, gizlenen, mod: 'bos' as const });
+    if (bos) return Object.assign(c, { sonuc, gizlenen, mod: 'bos' as const, genel });
     for (const d of KAYITLAR) {
       if (c.aileler.size && !c.aileler.has(d.k.aile)) continue;
+      /* Ek-3 genel patojen limitleri belirli bir ürüne bağlı değildir: ürün aramasında ayrı listelenir */
+      if (c.urunler.length && d.k.tur === 'mikro_patojen') {
+        if (!c.kalan.length || c.kalan.every(q => d.tamT.some(t => eslesir(q, t, 4)))) genel.push({ d: d.k, bag: null });
+        continue;
+      }
       let bag: SonucBaglantisi | null = null;
       if (c.urunler.length) {
         let en: SonucBaglantisi | null = null;
@@ -125,15 +133,20 @@ export function aramaDizini(DATA: Veri): AramaDizini {
       sonuc.push({ d: d.k, bag });
     }
     const mod: AramaModu = c.urunler.length ? 'urun' : (c.aileler.size ? 'aile' : 'metin');
+    const KAYNAK_SIRA: Record<string, number> = { e1: 0, tl: 1, mk: 2 };
     sonuc.sort((a, b) => {
+      /* mikrobiyolojik kriterler bulaşan limitlerinden sonra, kendi içinde ek ve madde sırasıyla */
+      const ma = a.d.kaynak === 'mk' ? 1 : 0, mb = b.d.kaynak === 'mk' ? 1 : 0; if (ma !== mb) return ma - mb;
+      if (ma) { if (a.d.tur !== b.d.tur) return a.d.tur < b.d.tur ? -1 : 1; const m = maddeKarsilastir(a.d.madde, b.d.madde); return m || (a.d.id < b.d.id ? -1 : 1); }
       if (mod === 'urun') {
         const sa = a.bag!.seviye === 3 ? 1 : 0, sb = b.bag!.seviye === 3 ? 1 : 0; if (sa !== sb) return sa - sb;
         const fa = AILE_SIRA[a.d.aile], fb = AILE_SIRA[b.d.aile]; if (fa !== fb) return fa - fb;
       }
-      if (a.d.kaynak !== b.d.kaynak) return a.d.kaynak === 'e1' ? -1 : 1;
+      if (a.d.kaynak !== b.d.kaynak) return KAYNAK_SIRA[a.d.kaynak] - KAYNAK_SIRA[b.d.kaynak];
       return maddeKarsilastir(a.d.madde, b.d.madde);
     });
-    return Object.assign(c, { sonuc, gizlenen, mod });
+    genel.sort((a, b) => maddeKarsilastir(a.d.madde, b.d.madde));
+    return Object.assign(c, { sonuc, gizlenen, mod, genel });
   }
 
   /* --- tamamlama --- */

@@ -1,6 +1,10 @@
 /* ===== Arayüz — prototipteki davranışın taşınmış hali ===== */
-import { norm, gecerliDeger, tarihYaz, durumOf, KAYNAKLAR, sayfaYolu, type AramaDizini, type Aday, type Analit, type KaynakKodu, type Sonuc, type Veri } from '../core';
+import {
+  norm, gecerliDeger, tarihYaz, durumOf, KAYNAKLAR, sayfaYolu, MIKRO_KAYNAK, MIKRO_TUR_ADI, planTuru, birimYazili, gecerliC, tabloAnahtari,
+  type AramaDizini, type Aday, type Analit, type KaynakKodu, type Sonuc, type Veri
+} from '../core';
 import { kabulTestleri, type KabulTesti } from '../kabul/testler';
+import { MIKRO_DIPNOT } from '../veri';
 
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
 const esc = (s: unknown) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
@@ -14,7 +18,7 @@ export function baslat(dz: AramaDizini, DATA: Veri): void {
   function ilkSatir() {
     const e1 = DATA.kayitlar.filter(k => k.kaynak === 'e1');
     const deger = e1.reduce((s, k) => s + k.analitler.reduce((t, a) => t + a.degerler.length, 0), 0);
-    $('kapsamMetin').textContent = 'Bulaşanlar Yönetmeliği Ek-1’in 45 sayfasındaki ' + new Set(e1.map(k => k.madde)).size + ' maddenin tamamı (' + deger + ' limit değeri, 12 dipnot) ve Bakanlık talimatından 6 karşılaştırma değeri. Aşamalı limitlerde bugün geçerli değer ve sıradaki değer ayrı gösterilir.';
+    $('kapsamMetin').textContent = 'Bulaşanlar Yönetmeliği Ek-1’in 45 sayfasındaki ' + new Set(e1.map(k => k.madde)).size + ' maddenin tamamı (' + deger + ' limit değeri, 12 dipnot) ve Bakanlık talimatından 6 karşılaştırma değeri; Mikrobiyolojik Kriterler Yönetmeliği’nden ' + DATA.kayitlar.filter(k => k.kaynak === 'mk').length + ' kriter (Ek-1 gıda güvenilirliği, Ek-2 üretim hijyeni, Ek-3 genel patojen limitleri). Aşamalı limitlerde bugün geçerli değer ve sıradaki değer ayrı gösterilir.';
     $('hizliCipler').innerHTML = DATA.oneriler.slice(0, 6).map(s => '<button type="button" class="cip" data-sorgu="' + esc(s) + '">' + esc(s) + '</button>').join('');
   }
   function degerHtml(a: Analit) {
@@ -38,7 +42,35 @@ export function baslat(dz: AramaDizini, DATA: Veri): void {
     if (r.bag.seviye === 2) return '<span class="baglam">Üst kategori: ' + esc(r.bag.ust) + '</span>';
     return '<span class="baglam baglam-dikkat">İstisna içeriyor, kontrol edin</span>';
   }
+  /* Mikrobiyolojik kriter kartı: n, c, m, M belgede yazdığı gibi; bulaşan limitinden ayrı tür ve renk */
+  function mikroKart(r: Sonuc) {
+    const k = r.d, s = k.mikro!, plan = planTuru(s), c = gecerliC(s, BUGUN);
+    /* Bu veri Word metninden programla çekildi (görsel okuma değil); doğrulama kapısı aynı */
+    const d = k.durum === 'okundu' ? { ton: 'bekle', baslik: 'Tek okuma (Word metninden programla çekildi).', metin: 'İkinci kontrol ve hukuki güncellik onayı bekliyor.' } : durumOf(k);
+    const birim = (v: string) => birimYazili(v) ? '' : '<span class="birim-k">kob/g-mL</span>';
+    let h = '<article class="kart kart-mikro">';
+    h += '<div class="ust-satir"><span class="tur">' + esc(MIKRO_TUR_ADI[k.tur]) + '</span>' + baglamHtml(r) + '</div>';
+    h += '<h3>' + esc(s.urun_ifadesi) + '</h3><p class="aile-ad">' + esc(s.mikroorganizma) + '</p>';
+    h += '<div class="degerler"><div class="deger-satir">';
+    h += '<span class="analit">' + (plan === 'günlük ortalama' ? 'Günlük ortalama değer (n ve c belirtilmemiş)' : 'Numune planı: ' + plan + ' · n = ' + esc(s.n) + ', c = ' + esc(c.simdi)) + '</span>';
+    if (s.tek_limit) h += '<span class="deger-ana"><span class="mikro-limit">' + esc(s.m) + '</span>' + birim(s.m) + '</span>';
+    else h += '<span class="deger-ana"><span class="mikro-et">m</span><span class="mikro-limit">' + esc(s.m) + '</span>' + birim(s.m) + '</span><span class="deger-ana"><span class="mikro-et">M</span><span class="mikro-limit">' + esc(s.M) + '</span>' + birim(s.M) + '</span>';
+    c.ileri.forEach(x => { h += '<span class="sonraki">' + esc(x.tarih) + ': c = ' + esc(x.c) + '</span>'; });
+    if (!birimYazili(s.m) || !birimYazili(s.M)) h += '<span class="gecmis">Birim yazılı değilse kob/g-mL’dir (Ek-1 dipnot 2).</span>';
+    h += '</div></div>';
+    if (s.metot) h += '<p class="ek-bilgi"><b>Metot:</b> ' + esc(s.metot) + '</p>';
+    if (s.basamak) h += '<p class="ek-bilgi"><b>Uygulanacağı basamak:</b> ' + esc(s.basamak) + '</p>';
+    if (s.tedbir) h += '<p class="ek-bilgi"><b>Uygun çıkmazsa:</b> ' + esc(s.tedbir) + '</p>';
+    if (s.uyari) h += '<p class="uyari-tur"><b>Dikkat:</b> ' + esc(s.uyari) + '</p>';
+    if (s.dipnot_metinleri.length) h += '<details class="dipnot"><summary>Dipnotlar (' + s.dipnot_metinleri.length + ')</summary>' + s.dipnot_metinleri.map(x => '<p>' + esc(x) + '</p>').join('') + '</details>';
+    const deg = MIKRO_DIPNOT.analiz_sonuclarinin_degerlendirilmesi[tabloAnahtari(s, Object.keys(MIKRO_DIPNOT.analiz_sonuclarinin_degerlendirilmesi))] || [];
+    if (deg.length) h += '<details class="dipnot"><summary>Sonuçların değerlendirilmesi</summary>' + deg.map(x => '<p>' + esc(x) + '</p>').join('') + '</details>';
+    h += '<div class="alt-satir"><span class="kaynak-yazi">' + esc(MIKRO_KAYNAK + ', ' + s.ek + ', madde ' + s.madde) + ' · resmî PDF henüz eklenmedi</span></div>';
+    h += '<p class="durum-k' + (d.ton === 'ok' ? ' ok' : '') + '"><b>' + esc(d.baslik) + '</b> ' + esc(d.metin) + '</p>';
+    return h + '</article>';
+  }
   function kart(r: Sonuc, aileGoster: boolean) {
+    if (r.d.kaynak === 'mk') return mikroKart(r);
     const k = r.d, kar = k.tur === 'karsilastirma', d = durumOf(k);
     const kaynak = KAYNAKLAR[k.kaynak].ad + ', madde ' + k.madde.replace(/^Ek-2 \/ /, '') + ', sayfa ' + k.sayfa;
     let h = '<article class="kart ' + (kar ? 'kart-karsilastirma' : 'kart-limit') + '">';
@@ -58,26 +90,30 @@ export function baslat(dz: AramaDizini, DATA: Veri): void {
     if (norm(q).length < 2) { alan.hidden = true; $('hizli').hidden = false; $('kapsam').hidden = false; return; }
     const s = dz.ara(q);
     $('hizli').hidden = true; $('kapsam').hidden = true; alan.hidden = false;
-    const nL = s.sonuc.filter(r => r.d.tur === 'limit').length, nK = s.sonuc.length - nL;
+    const mikroMu = (t: string) => t.startsWith('mikro');
+    const nL = s.sonuc.filter(r => r.d.tur === 'limit').length, nK = s.sonuc.filter(r => r.d.tur === 'karsilastirma').length, nM = s.sonuc.filter(r => mikroMu(r.d.tur)).length;
     let baslik = '“' + q + '”';
     if (s.mod === 'urun') baslik = s.urunler.map(u => buyuk(u.anahtar)).join(', ') + (s.aileler.size ? ' – ' + [...s.aileler].join(', ') : '') + ': kapsayan limitler';
     else if (s.mod === 'aile') baslik = [...s.aileler].join(', ') + ': geçtiği tüm ürünler';
     $('sonucBaslik').textContent = baslik;
     $('sayim').textContent = s.sonuc.length + ' satır';
-    const f = ([['tumu', 'Tümü', s.sonuc.length], ['limit', 'Resmî limit', nL], ['karsilastirma', 'Karşılaştırma değeri', nK]] as [string, string, number][]).filter(x => x[0] === 'tumu' || x[2] > 0);
+    const f = ([['tumu', 'Tümü', s.sonuc.length], ['limit', 'Resmî limit', nL], ['karsilastirma', 'Karşılaştırma değeri', nK], ['mikro', 'Mikrobiyolojik kriter', nM]] as [string, string, number][]).filter(x => x[0] === 'tumu' || x[2] > 0);
     if (!f.some(x => x[0] === durum.filtre)) durum.filtre = 'tumu';
     $('suzgec').innerHTML = f.length > 1 ? f.map(x => '<button type="button" data-f="' + x[0] + '" aria-pressed="' + (durum.filtre === x[0]) + '">' + x[1] + ' (' + x[2] + ')</button>').join('') : '';
-    const liste = s.sonuc.filter(r => durum.filtre === 'tumu' || r.d.tur === durum.filtre);
+    const liste = s.sonuc.filter(r => durum.filtre === 'tumu' || (durum.filtre === 'mikro' ? mikroMu(r.d.tur) : r.d.tur === durum.filtre));
+    /* Ek-3 genel patojen limitleri: ürün aramasında ayrı bölüm (Tümü ya da Mikrobiyolojik süzgecinde) */
+    const genel = durum.filtre === 'tumu' || durum.filtre === 'mikro' ? s.genel : [];
+    const genelHtml = () => genel.length ? '<h3 class="bolum-baslik">Genel patojen limitleri (Ek-3)<small>' + genel.length + ' satır</small></h3><p class="uyari">Bu limitler belirli bir ürüne bağlı değildir. Ürününüz için yukarıda ürüne özgü bir kriter yoksa geçerli olabilir; hangi gıdalara uygulandığını yönetmelik maddesinden teyit edin.</p>' + genel.map(r => kart(r, false)).join('') : '';
     let h = '';
     if (s.mod === 'urun') h += '<p class="uyari"><b>Bu liste bir analiz planı değildir.</b> Bir limitin burada görünmesi o analizin zorunlu olduğu anlamına gelmez; analiz planı risk değerlendirmesine göre yapılır.' + (s.gizlenen ? ' Daha özel bir satırı bulunduğu için ' + s.gizlenen + ' genel satır gösterilmedi.' : '') + '</p>';
     if (s.kalan.length && s.mod !== 'metin') h += '<p class="uyari">Ek olarak satır metninde aranan kelimeler: ' + esc(s.kalan.map(t => t.w).join(', ')) + '</p>';
     if (!liste.length) {
-      h += '<div class="bos"><strong>“' + esc(q) + '” için satır bulunamadı.</strong><p>Ürünü tek kelimeyle (ör. “fındık”) ya da bulaşanı tek başına (ör. “kadmiyum”) yazmayı deneyin. Bu sürüm yalnız bulaşan limitlerini içerir.</p>' +
+      h += '<div class="bos"><strong>“' + esc(q) + '” için satır bulunamadı.</strong><p>Ürünü tek kelimeyle (ör. “fındık”) ya da bulaşanı ya da mikroorganizmayı tek başına (ör. “kadmiyum”, “listeria”) yazmayı deneyin. Bu sürüm bulaşan limitlerini ve mikrobiyolojik kriterleri içerir.</p>' +
         '<div class="cipler">' + DATA.oneriler.slice(0, 5).map(x => '<button type="button" class="cip" data-sorgu="' + esc(x) + '">' + esc(x) + '</button>').join('') + '</div></div>';
-      $('sonuclar').innerHTML = h; return;
+      $('sonuclar').innerHTML = h + genelHtml(); return;
     }
     const ISTISNA_BOLUM = 'İstisna içeren satırlar: ürününüzün kapsama girip girmediğini kontrol edin';
-    const bolumOf = (r: Sonuc) => s.mod === 'urun' ? (r.bag!.seviye === 3 ? ISTISNA_BOLUM : r.d.aile) : r.d.aile;
+    const bolumOf = (r: Sonuc) => r.d.kaynak === 'mk' && s.mod === 'urun' ? 'Mikrobiyolojik kriterler · ' + MIKRO_TUR_ADI[r.d.tur] : s.mod === 'urun' ? (r.bag!.seviye === 3 ? ISTISNA_BOLUM : r.d.aile) : r.d.aile;
     const gosterilen = liste.slice(0, durum.sinir);
     let sonBolum: string | null = null;
     gosterilen.forEach(r => {
@@ -91,6 +127,7 @@ export function baslat(dz: AramaDizini, DATA: Veri): void {
       h += kart(r, s.mod !== 'urun' && !(s.mod === 'aile' && s.aileler.size > 1) ? s.mod === 'metin' : false);
     });
     if (liste.length > gosterilen.length) h += '<button type="button" class="btn daha" data-daha="1">' + (liste.length - gosterilen.length) + ' satır daha göster</button>';
+    else h += genelHtml();
     $('sonuclar').innerHTML = h;
   }
   function oneriCiz() {
